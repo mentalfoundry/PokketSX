@@ -10,5 +10,6 @@
 *.vcxproj.filter text eol=crlf
 
 *.sh text eol=lf
+scripts/hooks/* text eol=lf
 CMakeLists.txt text eol=lf
 
