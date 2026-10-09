@@ -936,8 +936,8 @@ Mensagens não lidas: {}</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="198"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Cria um arquivo de registro (duckstation.log) no diretório do usuário.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Cria um arquivo de registro (pokketsx.log) no diretório do usuário.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="199"/>
@@ -7508,8 +7508,8 @@ Error was:</source>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7540"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Cria um arquivo de registro (duckstation.log) no diretório do usuário.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Cria um arquivo de registro (pokketsx.log) no diretório do usuário.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7541"/>

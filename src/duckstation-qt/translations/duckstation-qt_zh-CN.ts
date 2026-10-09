@@ -757,8 +757,8 @@ Unread messages: {}</source>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="198"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>将消息记录到用户数据目录中的duckstation.log。</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>将消息记录到用户数据目录中的pokketsx.log。</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="194"/>
@@ -6629,8 +6629,8 @@ Error was:</source>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7540"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>将消息记录到用户数据目录中的duckstation.log。</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>将消息记录到用户数据目录中的pokketsx.log。</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7542"/>

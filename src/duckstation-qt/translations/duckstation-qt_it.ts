@@ -1017,8 +1017,8 @@ Messaggi non letti: {}</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="197"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Registra i messaggi nel file duckstation.log nella cartella utente.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Registra i messaggi nel file pokketsx.log nella cartella utente.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="198"/>
@@ -7777,8 +7777,8 @@ L&apos;errore è:</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7280"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Registra i messaggi nel file duckstation.log all&apos;interno della cartella utente.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Registra i messaggi nel file pokketsx.log all&apos;interno della cartella utente.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7281"/>

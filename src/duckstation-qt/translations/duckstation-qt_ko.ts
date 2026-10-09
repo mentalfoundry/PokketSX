@@ -984,8 +984,8 @@ Unread messages: {}</source>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="262"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>사용자 디렉터리의 duckstation.log에 로그를 기록합니다.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>사용자 디렉터리의 pokketsx.log에 로그를 기록합니다.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="264"/>
@@ -7563,8 +7563,8 @@ Error was:</source>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7069"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>사용자 디렉터리의 duckstation.log에 로그를 기록합니다.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>사용자 디렉터리의 pokketsx.log에 로그를 기록합니다.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7070"/>

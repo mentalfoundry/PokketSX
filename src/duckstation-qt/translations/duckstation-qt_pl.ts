@@ -884,8 +884,8 @@ Nieprzeczytane wiadomości: {}</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="198"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Rejestruje wiadomości do pliku duckstation.log w katalogu użytkownika.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Rejestruje wiadomości do pliku pokketsx.log w katalogu użytkownika.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="199"/>
@@ -7220,8 +7220,8 @@ Spowodowany błąd:</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7459"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Rejestruje wiadomości do pliku duckstation.log w katalogu użytkownika.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Rejestruje wiadomości do pliku pokketsx.log w katalogu użytkownika.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7460"/>

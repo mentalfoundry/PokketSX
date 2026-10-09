@@ -1035,8 +1035,8 @@ Okunmamış Mesajlar: {}</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="262"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Logs messages to duckstation.log in the user directory.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Logs messages to pokketsx.log in the user directory.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="263"/>
@@ -7431,8 +7431,8 @@ Hata şuydu:</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="6798"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Logs messages to duckstation.log in the user directory.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Logs messages to pokketsx.log in the user directory.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="6799"/>

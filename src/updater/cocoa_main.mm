@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
   if (const char* home_dir = getenv("HOME"))
   {
-    static constexpr char log_file[] = "Library/Application Support/DuckStation/updater.log";
+    static constexpr char log_file[] = "Library/Application Support/PokketSX/updater.log";
     std::string log_path = Path::Combine(home_dir, log_file);
     Log::SetFileOutputParams(true, log_path.c_str());
   }

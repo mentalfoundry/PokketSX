@@ -939,8 +939,8 @@ Mensajes sin leer: {}</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="198"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Copia los mensajes al archivo duckstation.log, en el directorio del usuario.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Copia los mensajes al archivo pokketsx.log, en el directorio del usuario.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="199"/>
@@ -7529,8 +7529,8 @@ Do you want to {0} anyway?</source>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7554"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Copia los mensajes al archivo duckstation.log, en el directorio del usuario.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Copia los mensajes al archivo pokketsx.log, en el directorio del usuario.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7555"/>

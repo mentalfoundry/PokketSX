@@ -976,8 +976,8 @@ Unread messages: {}</source>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="198"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>ログをユーザーディレクトリの duckstation.log に記録します。</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>ログをユーザーディレクトリの pokketsx.log に記録します。</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="200"/>
@@ -8123,8 +8123,8 @@ Error was:</source>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7467"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation type="unfinished">ログをユーザーディレクトリの duckstation.log に記録します。</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation type="unfinished">ログをユーザーディレクトリの pokketsx.log に記録します。</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7468"/>

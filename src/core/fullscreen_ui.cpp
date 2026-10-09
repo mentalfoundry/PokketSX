@@ -5161,7 +5161,7 @@ void FullscreenUI::DrawAdvancedSettingsPage()
                     FSUI_CSTR("Logging"), "LogToConsole", Settings::DEFAULT_LOG_TO_CONSOLE);
   DrawToggleSetting(bsi, FSUI_CSTR("Log To Debug Console"),
                     FSUI_CSTR("Logs messages to the debug console where supported."), "Logging", "LogToDebug", false);
-  DrawToggleSetting(bsi, FSUI_CSTR("Log To File"), FSUI_CSTR("Logs messages to duckstation.log in the user directory."),
+  DrawToggleSetting(bsi, FSUI_CSTR("Log To File"), FSUI_CSTR("Logs messages to pokketsx.log in the user directory."),
                     "Logging", "LogToFile", false);
 
   MenuHeading(FSUI_CSTR("Debugging Settings"));
@@ -7518,7 +7518,7 @@ TRANSLATE_NOOP("FullscreenUI", "Login token generated on {}");
 TRANSLATE_NOOP("FullscreenUI", "Logout");
 TRANSLATE_NOOP("FullscreenUI", "Logs BIOS calls to printf(). Not all games contain debugging messages.");
 TRANSLATE_NOOP("FullscreenUI", "Logs in to RetroAchievements.");
-TRANSLATE_NOOP("FullscreenUI", "Logs messages to duckstation.log in the user directory.");
+TRANSLATE_NOOP("FullscreenUI", "Logs messages to pokketsx.log in the user directory.");
 TRANSLATE_NOOP("FullscreenUI", "Logs messages to the console window.");
 TRANSLATE_NOOP("FullscreenUI", "Logs messages to the debug console where supported.");
 TRANSLATE_NOOP("FullscreenUI", "Logs out of RetroAchievements.");

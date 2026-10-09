@@ -1018,8 +1018,8 @@ Unread messages: {}</source>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="262"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Protokolliert Meldungen in die Datei &quot;duckstation.log&quot; im Benutzerverzeichnis.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Protokolliert Meldungen in die Datei &quot;pokketsx.log&quot; im Benutzerverzeichnis.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="263"/>
@@ -7462,8 +7462,8 @@ Error was:</source>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7069"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation type="unfinished">Protokolliert Meldungen in die Datei &quot;duckstation.log&quot; im Benutzerverzeichnis.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation type="unfinished">Protokolliert Meldungen in die Datei &quot;pokketsx.log&quot; im Benutzerverzeichnis.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7070"/>

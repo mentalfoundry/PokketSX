@@ -554,24 +554,24 @@ bool QtHost::SetDataDirectory()
   }
 
 #if defined(_WIN32)
-  // On Windows, use My Documents\DuckStation.
+  // On Windows, use My Documents\PokketSX.
   PWSTR documents_directory;
   if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, NULL, &documents_directory)))
   {
     if (std::wcslen(documents_directory) > 0)
-      EmuFolders::DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "DuckStation");
+      EmuFolders::DataRoot = Path::Combine(StringUtil::WideStringToUTF8String(documents_directory), "PokketSX");
     CoTaskMemFree(documents_directory);
   }
 #elif defined(__linux__) || defined(__FreeBSD__)
-  // Use $XDG_CONFIG_HOME/duckstation if it exists.
+  // Use $XDG_CONFIG_HOME/pokketsx if it exists.
   const char* xdg_config_home = getenv("XDG_CONFIG_HOME");
   if (xdg_config_home && Path::IsAbsolute(xdg_config_home))
   {
-    EmuFolders::DataRoot = Path::RealPath(Path::Combine(xdg_config_home, "duckstation"));
+    EmuFolders::DataRoot = Path::RealPath(Path::Combine(xdg_config_home, "pokketsx"));
   }
   else
   {
-    // Use ~/.local/share/duckstation otherwise.
+    // Use ~/.local/share/pokketsx otherwise.
     const char* home_dir = getenv("HOME");
     if (home_dir)
     {
@@ -580,11 +580,11 @@ bool QtHost::SetDataDirectory()
       const std::string share_dir(Path::Combine(local_dir, "share"));
       FileSystem::EnsureDirectoryExists(local_dir.c_str(), false);
       FileSystem::EnsureDirectoryExists(share_dir.c_str(), false);
-      EmuFolders::DataRoot = Path::RealPath(Path::Combine(share_dir, "duckstation"));
+      EmuFolders::DataRoot = Path::RealPath(Path::Combine(share_dir, "pokketsx"));
     }
   }
 #elif defined(__APPLE__)
-  static constexpr char MAC_DATA_DIR[] = "Library/Application Support/DuckStation";
+  static constexpr char MAC_DATA_DIR[] = "Library/Application Support/PokketSX";
   const char* home_dir = getenv("HOME");
   if (home_dir)
     EmuFolders::DataRoot = Path::RealPath(Path::Combine(home_dir, MAC_DATA_DIR));

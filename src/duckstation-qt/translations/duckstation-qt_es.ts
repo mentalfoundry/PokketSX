@@ -860,8 +860,8 @@ Mensajes sin leer: {}</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="198"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Registra mensajes en el archivo &quot;duckstation.log&quot; dentro del directorio de usuario.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Registra mensajes en el archivo &quot;pokketsx.log&quot; dentro del directorio de usuario.</translation>
     </message>
     <message>
         <location filename="../advancedsettingswidget.cpp" line="199"/>
@@ -6986,8 +6986,8 @@ Error:</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7535"/>
-        <source>Logs messages to duckstation.log in the user directory.</source>
-        <translation>Registra mensajes en el archivo &quot;duckstation.log&quot; dentro del directorio de usuario.</translation>
+        <source>Logs messages to pokketsx.log in the user directory.</source>
+        <translation>Registra mensajes en el archivo &quot;pokketsx.log&quot; dentro del directorio de usuario.</translation>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="7536"/>
