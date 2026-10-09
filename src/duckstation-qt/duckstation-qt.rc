@@ -68,12 +68,12 @@ BEGIN
         BLOCK "0c0904b0"
         BEGIN
             VALUE "CompanyName", "https://github.com/mentalfoundry/pokketSX"
-            VALUE "FileDescription", "DuckStation PS1 Emulator"
+            VALUE "FileDescription", "PokketSX PS1 Emulator"
             VALUE "FileVersion", "1.0.0.1"
             VALUE "InternalName", "duckstation-qt.exe"
             VALUE "LegalCopyright", "Copyright (C) 2020-2024 Stenzek and collaborators"
             VALUE "OriginalFilename", "duckstation-qt.exe"
-            VALUE "ProductName", "DuckStation"
+            VALUE "ProductName", "PokketSX"
             VALUE "ProductVersion", "1.0.0.1"
         END
     END

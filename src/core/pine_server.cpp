@@ -445,7 +445,7 @@ bool PINEServer::PINESocket::HandleCommand(IPCCommand command, BinarySpanReader 
 
     case MsgVersion:
     {
-      const TinyString version = TinyString::from_format("DuckStation {}", g_scm_tag_str);
+      const TinyString version = TinyString::from_format("PokketSX {}", g_scm_tag_str);
       if (!BeginReply(reply, version.length() + 1)) [[unlikely]]
         return false;
 

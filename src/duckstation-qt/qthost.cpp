@@ -194,7 +194,7 @@ bool QtHost::InNoGUIMode()
 
 QString QtHost::GetAppNameAndVersion()
 {
-  return QStringLiteral("DuckStation %1").arg(QLatin1StringView(g_scm_tag_str));
+  return QStringLiteral("PokketSX %1").arg(QLatin1StringView(g_scm_tag_str));
 }
 
 QString QtHost::GetAppConfigSuffix()
@@ -453,10 +453,10 @@ bool QtHost::InitializeConfig(std::string settings_filename)
     if (!s_base_settings_interface->Save(&error))
     {
       QMessageBox::critical(
-        nullptr, QStringLiteral("DuckStation"),
+        nullptr, QStringLiteral("PokketSX"),
         QStringLiteral(
           "Failed to save configuration to\n\n%1\n\nThe error was: %2\n\nPlease ensure this directory is writable. You "
-          "can also try portable mode by creating portable.txt in the same directory you installed DuckStation into.")
+          "can also try portable mode by creating portable.txt in the same directory you installed PokketSX into.")
           .arg(QString::fromStdString(s_base_settings_interface->GetFileName()))
           .arg(QString::fromStdString(error.GetDescription())));
       return false;
@@ -599,10 +599,10 @@ bool QtHost::SetDataDirectory()
     {
       // no point translating, config isn't loaded
       QMessageBox::critical(
-        nullptr, QStringLiteral("DuckStation"),
+        nullptr, QStringLiteral("PokketSX"),
         QStringLiteral("Failed to create data directory at path\n\n%1\n\nThe error was: %2\nPlease ensure this "
                        "directory is writable. You can also try portable mode by creating portable.txt in the same "
-                       "directory you installed DuckStation into.")
+                       "directory you installed PokketSX into.")
           .arg(QString::fromStdString(EmuFolders::DataRoot))
           .arg(QString::fromStdString(error.GetDescription())));
       return false;
@@ -2258,7 +2258,7 @@ void QtHost::PrintCommandLineVersion()
 {
   InitializeEarlyConsole();
 
-  std::fprintf(stderr, "DuckStation Version %s (%s)\n", g_scm_tag_str, g_scm_branch_str);
+  std::fprintf(stderr, "PokketSX Version %s (%s)\n", g_scm_tag_str, g_scm_branch_str);
   std::fprintf(stderr, "https://github.com/mentalfoundry/pokketSX\n");
   std::fprintf(stderr, "\n");
 }

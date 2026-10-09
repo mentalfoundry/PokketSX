@@ -56,7 +56,7 @@ void AboutDialog::showThirdPartyNotices(QWidget* parent)
 {
   QDialog dialog(parent);
   dialog.setMinimumSize(700, 400);
-  dialog.setWindowTitle(tr("DuckStation Third-Party Notices"));
+  dialog.setWindowTitle(tr("PokketSX Third-Party Notices"));
 
   QIcon icon;
   icon.addFile(QString::fromUtf8(":/icons/duck.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -76,7 +76,7 @@ void AboutDialog::showThirdPartyNotices(QWidget* parent)
   }
   else
   {
-    tb->setText(tr("Missing thirdparty.html file. You should request it from where-ever you obtained DuckStation."));
+    tb->setText(tr("Missing thirdparty.html file. You should request it from where-ever you obtained PokketSX."));
   }
   layout->addWidget(tb, 1);
 

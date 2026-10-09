@@ -14,7 +14,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>DuckStation</string>
+   <string>PokketSX</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources/duckstation-qt.qrc">
@@ -468,7 +468,7 @@
      <normaloff>:/icons/duck_64.png</normaloff>:/icons/duck_64.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;About DuckStation...</string>
+    <string>&amp;About PokketSX...</string>
    </property>
   </action>
   <action name="actionChangeDisc">

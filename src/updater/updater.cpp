@@ -34,7 +34,7 @@
 
 Updater::Updater(ProgressCallback* progress) : m_progress(progress)
 {
-  progress->SetTitle("DuckStation Update Installer");
+  progress->SetTitle("PokketSX Update Installer");
 }
 
 Updater::~Updater()
