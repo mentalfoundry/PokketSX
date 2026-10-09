@@ -55,9 +55,9 @@ static constexpr u32 HTTP_POLL_INTERVAL = 10;
 
 #ifdef AUTO_UPDATER_SUPPORTED
 
-static const char* LATEST_TAG_URL = "https://api.github.com/repos/stenzek/duckstation/tags";
-static const char* LATEST_RELEASE_URL = "https://api.github.com/repos/stenzek/duckstation/releases/tags/{}";
-static const char* CHANGES_URL = "https://api.github.com/repos/stenzek/duckstation/compare/{}...{}";
+static const char* LATEST_TAG_URL = "https://api.github.com/repos/mentalfoundry/PokketSX/tags";
+static const char* LATEST_RELEASE_URL = "https://api.github.com/repos/mentalfoundry/PokketSX/releases/tags/{}";
+static const char* CHANGES_URL = "https://api.github.com/repos/mentalfoundry/PokketSX/compare/{}...{}";
 static const char* UPDATE_ASSET_FILENAME = SCM_RELEASE_ASSET;
 static const char* UPDATE_TAGS[] = SCM_RELEASE_TAGS;
 static const char* THIS_RELEASE_TAG = SCM_RELEASE_TAG;
