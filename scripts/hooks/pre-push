@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Runs the license check on everything being pushed.
+# Enable with: git config core.hooksPath scripts/hooks
+
+set -euo pipefail
+
+zero=0000000000000000000000000000000000000000
+check="$(git rev-parse --show-toplevel)/scripts/check-license.sh"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Deleting a remote ref pushes no code.
+  [ "$local_sha" = "$zero" ] && continue
+  bash "$check" "$local_sha"
+done
