@@ -24,11 +24,11 @@
         </dict>
     </array>
     <key>CFBundleExecutable</key>
-    <string>DuckStation</string>
+    <string>PokketSX</string>
     <key>CFBundleIconFile</key>
     <string>DuckStation.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>com.github.stenzek.duckstation</string>
+    <string>com.github.mentalfoundry.pokketsx</string>
     <key>CFBundleDevelopmentRegion</key>
     <string>English</string>
     <key>CFBundlePackageType</key>

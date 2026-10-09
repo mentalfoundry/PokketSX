@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     Log::SetFileOutputParams(true, log_path.c_str());
   }
 
-  std::string program_to_launch = Path::Combine(destination_directory, "Contents/MacOS/DuckStation");
+  std::string program_to_launch = Path::Combine(destination_directory, "Contents/MacOS/PokketSX");
   int result = EXIT_SUCCESS;
 
   std::thread worker([&progress, zip_path = std::move(zip_path),

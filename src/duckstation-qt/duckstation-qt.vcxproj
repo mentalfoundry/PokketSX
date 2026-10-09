@@ -380,6 +380,10 @@
   <Import Project="..\..\dep\msvc\vsprops\Win32Application.props" />
   <Import Project="..\..\dep\msvc\vsprops\QtCompile.props" />
   <Import Project="..\core\core.props" />
+  <PropertyGroup>
+    <!-- Name the executable after PokketSX; the project keeps its upstream name. -->
+    <TargetName>$(TargetName.Replace('duckstation-qt', 'pokketsx-qt'))</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>

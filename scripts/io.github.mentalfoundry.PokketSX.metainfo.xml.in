@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>io.github.mentalfoundry.PokketSX</id>
+  <launchable type="desktop-id">io.github.mentalfoundry.PokketSX.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <name>PokketSX</name>
+  <developer_name>mentalfoundry</developer_name>
+  <summary>PlayStation Emulator</summary>
+  <description>
+    <p>PokketSX is a simulator/emulator of the Sony PlayStation(TM) console, based on DuckStation.</p>
+    <p>"PlayStation" and "PSX" are registered trademarks of Sony Interactive Entertainment Europe Limited. This project is not affiliated in any way with Sony Interactive Entertainment.</p>
+  </description>
+  <content_rating type="oars-1.1"/>
+  <url type="homepage">https://github.com/mentalfoundry/pokketSX</url>
+  <url type="help">https://github.com/mentalfoundry/pokketSX</url>
+  <url type="vcs-browser">https://github.com/mentalfoundry/pokketSX</url>
+  <releases>
+    <release version="@GIT_VERSION@" date="@GIT_DATE@" />
+  </releases>
+  <custom>
+    <value key="flathub::manifest">https://raw.githubusercontent.com/mentalfoundry/pokketSX/@GIT_HASH@/scripts/flatpak/io.github.mentalfoundry.PokketSX.yaml</value>
+  </custom>
+</component>

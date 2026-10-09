@@ -177,6 +177,9 @@ target_compile_definitions(duckstation-qt PRIVATE QT_NO_EXCEPTIONS)
 
 add_core_resources(duckstation-qt)
 
+# Name the executable after PokketSX; the target keeps its upstream name.
+set_target_properties(duckstation-qt PROPERTIES OUTPUT_NAME pokketsx-qt)
+
 if(WIN32)
   target_sources(duckstation-qt PRIVATE
     duckstation-qt.rc
@@ -227,11 +230,11 @@ elseif(APPLE)
   # Don't generate a bundle for XCode, it makes code signing fail...
   if(NOT CMAKE_GENERATOR MATCHES "Xcode")
     get_scm_version()
-    set(BUNDLE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/DuckStation.app)
+    set(BUNDLE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/PokketSX.app)
     set_target_properties(duckstation-qt PROPERTIES
       MACOSX_BUNDLE true
       MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in
-      OUTPUT_NAME DuckStation
+      OUTPUT_NAME PokketSX
     )
 
     # Inject Qt Libraries into bundle.

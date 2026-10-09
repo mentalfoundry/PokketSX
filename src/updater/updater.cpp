@@ -213,8 +213,8 @@ bool Updater::ParseZip()
       // skip updater itself, since it was already pre-extracted.
       process_file = process_file && (StringUtil::Strcasecmp(zip_filename_buffer, "updater.exe") != 0);
 #elif defined(__APPLE__)
-      // on MacOS, we want to remove the DuckStation.app prefix.
-      static constexpr const char* PREFIX_PATH = "DuckStation.app/";
+      // on MacOS, we want to remove the PokketSX.app prefix.
+      static constexpr const char* PREFIX_PATH = "PokketSX.app/";
       const size_t prefix_length = std::strlen(PREFIX_PATH);
       process_file = process_file && (std::strncmp(zip_filename_buffer, PREFIX_PATH, prefix_length) == 0);
       filename_to_add += prefix_length;
