@@ -3142,11 +3142,6 @@ void FullscreenUI::DrawInterfaceSettingsPage()
     }
   }
 
-  MenuHeading(FSUI_CSTR("Integration"));
-  DrawToggleSetting(bsi, FSUI_ICONSTR(ICON_FA_CHARGING_STATION, "Enable Discord Presence"),
-                    FSUI_CSTR("Shows the game you are currently playing as part of your profile in Discord."), "Main",
-                    "EnableDiscordPresence", false);
-
   MenuHeading(FSUI_CSTR("On-Screen Display"));
   DrawIntSpinBoxSetting(bsi, FSUI_ICONSTR(ICON_FA_SEARCH, "OSD Scale"),
                         FSUI_CSTR("Determines how large the on-screen messages and monitor are."), "Display",
@@ -7032,8 +7027,8 @@ void FullscreenUI::DrawAboutWindow()
                              ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
   {
     ImGui::TextWrapped("%s",
-                       FSUI_CSTR("DuckStation is a free and open-source simulator/emulator of the Sony PlayStation(TM) "
-                                 "console, focusing on playability, speed, and long-term maintainability."));
+                       FSUI_CSTR("PokketSX is a free and open-source simulator/emulator of the Sony PlayStation(TM) "
+                                 "console, based on DuckStation."));
     ImGui::NewLine();
     ImGui::TextWrapped(FSUI_CSTR("Version: %s"), g_scm_tag_str);
     ImGui::NewLine();
@@ -7048,11 +7043,9 @@ void FullscreenUI::DrawAboutWindow()
 
     BeginMenuButtons();
     if (ActiveButton(FSUI_ICONSTR(ICON_FA_GLOBE, "GitHub Repository"), false))
-      ExitFullscreenAndOpenURL("https://github.com/stenzek/duckstation/");
-    if (ActiveButton(FSUI_ICONSTR(ICON_FA_COMMENT, "Discord Server"), false))
-      ExitFullscreenAndOpenURL("https://www.duckstation.org/discord.html");
+      ExitFullscreenAndOpenURL("https://github.com/mentalfoundry/pokketSX");
     if (ActiveButton(FSUI_ICONSTR(ICON_FA_PEOPLE_CARRY, "Contributor List"), false))
-      ExitFullscreenAndOpenURL("https://github.com/stenzek/duckstation/blob/master/CONTRIBUTORS.md");
+      ExitFullscreenAndOpenURL("https://github.com/mentalfoundry/pokketSX/blob/main/CONTRIBUTORS.md");
 
     if (ActiveButton(FSUI_ICONSTR(ICON_FA_WINDOW_CLOSE, "Close"), false) || WantsToCloseMenu())
     {
@@ -7367,7 +7360,6 @@ TRANSLATE_NOOP("FullscreenUI", "Disabled");
 TRANSLATE_NOOP("FullscreenUI", "Disables dithering and uses the full 8 bits per channel of color information.");
 TRANSLATE_NOOP("FullscreenUI", "Disables interlaced rendering and display in the GPU. Some games can render in 480p this way, but others will break.");
 TRANSLATE_NOOP("FullscreenUI", "Disc {} | {}");
-TRANSLATE_NOOP("FullscreenUI", "Discord Server");
 TRANSLATE_NOOP("FullscreenUI", "Display Settings");
 TRANSLATE_NOOP("FullscreenUI", "Displays popup messages on events such as achievement unlocks and leaderboard submissions.");
 TRANSLATE_NOOP("FullscreenUI", "Displays popup messages when starting, submitting, or failing a leaderboard challenge.");
@@ -7378,14 +7370,13 @@ TRANSLATE_NOOP("FullscreenUI", "Downsamples the rendered image prior to displayi
 TRANSLATE_NOOP("FullscreenUI", "Downsampling");
 TRANSLATE_NOOP("FullscreenUI", "Downsampling Display Scale");
 TRANSLATE_NOOP("FullscreenUI", "Duck icon by icons8 (https://icons8.com/icon/74847/platforms.undefined.short-title)");
-TRANSLATE_NOOP("FullscreenUI", "DuckStation is a free and open-source simulator/emulator of the Sony PlayStation(TM) console, focusing on playability, speed, and long-term maintainability.");
+TRANSLATE_NOOP("FullscreenUI", "PokketSX is a free and open-source simulator/emulator of the Sony PlayStation(TM) console, based on DuckStation.");
 TRANSLATE_NOOP("FullscreenUI", "Dump Replaceable VRAM Writes");
 TRANSLATE_NOOP("FullscreenUI", "Emulation Settings");
 TRANSLATE_NOOP("FullscreenUI", "Emulation Speed");
 TRANSLATE_NOOP("FullscreenUI", "Enable 8MB RAM");
 TRANSLATE_NOOP("FullscreenUI", "Enable Achievements");
 TRANSLATE_NOOP("FullscreenUI", "Enable Cheats");
-TRANSLATE_NOOP("FullscreenUI", "Enable Discord Presence");
 TRANSLATE_NOOP("FullscreenUI", "Enable Fast Boot");
 TRANSLATE_NOOP("FullscreenUI", "Enable In-Game Overlays");
 TRANSLATE_NOOP("FullscreenUI", "Enable Overclocking");
@@ -7485,7 +7476,6 @@ TRANSLATE_NOOP("FullscreenUI", "Inhibit Screensaver");
 TRANSLATE_NOOP("FullscreenUI", "Input Sources");
 TRANSLATE_NOOP("FullscreenUI", "Input profile '{}' loaded.");
 TRANSLATE_NOOP("FullscreenUI", "Input profile '{}' saved.");
-TRANSLATE_NOOP("FullscreenUI", "Integration");
 TRANSLATE_NOOP("FullscreenUI", "Interface Settings");
 TRANSLATE_NOOP("FullscreenUI", "Internal Resolution");
 TRANSLATE_NOOP("FullscreenUI", "Last Played");
@@ -7722,7 +7712,6 @@ TRANSLATE_NOOP("FullscreenUI", "Shows persistent icons when turbo is active or w
 TRANSLATE_NOOP("FullscreenUI", "Shows the current controller state of the system in the bottom-left corner of the display.");
 TRANSLATE_NOOP("FullscreenUI", "Shows the current emulation speed of the system in the top-right corner of the display as a percentage.");
 TRANSLATE_NOOP("FullscreenUI", "Shows the current rendering resolution of the system in the top-right corner of the display.");
-TRANSLATE_NOOP("FullscreenUI", "Shows the game you are currently playing as part of your profile in Discord.");
 TRANSLATE_NOOP("FullscreenUI", "Shows the host's CPU usage based on threads in the top-right corner of the display.");
 TRANSLATE_NOOP("FullscreenUI", "Shows the host's GPU usage in the top-right corner of the display.");
 TRANSLATE_NOOP("FullscreenUI", "Shows the number of frames (or v-syncs) displayed per second by the system in the top-right corner of the display.");

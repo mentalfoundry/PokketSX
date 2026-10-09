@@ -145,7 +145,7 @@ bool AutoUpdaterDialog::warnAboutUnofficialBuild()
     "<h1>You are not using an official release!</h1><h3>If you continue to use this build, expect to run into "
     "issues.</h3><p><strong>No assistance will be provided by the developers or community</strong>, as we cannot fix "
     "broken functionality in builds we do not control.</p><p>We <strong>strongly recommend</strong> downloading an "
-    "official release from <a href=\"https://www.duckstation.org/\">duckstation.org</a>.</p><p>Do you want to exit and "
+    "official release from <a href=\"https://github.com/mentalfoundry/pokketSX/releases\">GitHub</a>.</p><p>Do you want to exit and "
     "open this page now?</p>");
 
   QMessageBox mbox;
@@ -185,7 +185,7 @@ bool AutoUpdaterDialog::warnAboutUnofficialBuild()
 
   if (mbox.exec() == QMessageBox::Yes)
   {
-    QtUtils::OpenURL(nullptr, "https://duckstation.org/");
+    QtUtils::OpenURL(nullptr, "https://github.com/mentalfoundry/pokketSX/releases");
     return false;
   }
 

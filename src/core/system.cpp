@@ -90,7 +90,9 @@ Log_SetChannel(System);
 #endif
 
 #ifndef __ANDROID__
-#define ENABLE_DISCORD_PRESENCE 1
+// Discord Rich Presence is off until PokketSX has its own Discord application.
+// To enable it, set DISCORD_APP_ID in InitializeDiscordPresence() and define this.
+// #define ENABLE_DISCORD_PRESENCE 1
 #define ENABLE_PINE_SERVER 1
 #define ENABLE_GDB_SERVER 1
 #define ENABLE_SOCKET_MULTIPLEXER 1
@@ -5839,8 +5841,11 @@ void System::InitializeDiscordPresence()
     return;
   }
 
+  // ID of the PokketSX Discord application.
+  static constexpr const char* DISCORD_APP_ID = "";
+
   DiscordEventHandlers handlers = {};
-  dyn_libs::Discord_Initialize("705325712680288296", &handlers, 0, nullptr);
+  dyn_libs::Discord_Initialize(DISCORD_APP_ID, &handlers, 0, nullptr);
   s_discord_presence_active = true;
 
   UpdateRichPresence(true);
@@ -5868,8 +5873,8 @@ void System::UpdateRichPresence(bool update_session_time)
 
   // https://discord.com/developers/docs/rich-presence/how-to#updating-presence-update-presence-payload-fields
   DiscordRichPresence rp = {};
-  rp.largeImageKey = "duckstation_logo";
-  rp.largeImageText = "DuckStation PS1/PSX Emulator";
+  rp.largeImageKey = "pokketsx_logo";
+  rp.largeImageText = "PokketSX PS1 Emulator";
   rp.startTimestamp = s_discord_presence_time_epoch;
   rp.details = "No Game Running";
   if (IsValidOrInitializing())

@@ -72,7 +72,6 @@ InterfaceSettingsWidget::InterfaceSettingsWidget(SettingsWindow* dialog, QWidget
   SettingWidgetBinder::BindWidgetToBoolSetting(sif, m_ui.hideMouseCursor, "Main", "HideCursorInFullscreen", true);
   SettingWidgetBinder::BindWidgetToBoolSetting(sif, m_ui.createSaveStateBackups, "Main", "CreateSaveStateBackups",
                                                Settings::DEFAULT_SAVE_STATE_BACKUPS);
-  SettingWidgetBinder::BindWidgetToBoolSetting(sif, m_ui.enableDiscordPresence, "Main", "EnableDiscordPresence", false);
   connect(m_ui.renderToSeparateWindow, &QCheckBox::checkStateChanged, this,
           &InterfaceSettingsWidget::onRenderToSeparateWindowChanged);
 
@@ -116,8 +115,6 @@ InterfaceSettingsWidget::InterfaceSettingsWidget(SettingsWindow* dialog, QWidget
   dialog->registerWidgetHelp(
     m_ui.createSaveStateBackups, tr("Create Save State Backups"), tr("Checked"),
     tr("Backs up any previous save state when creating a new save state, with a .bak extension."));
-  dialog->registerWidgetHelp(m_ui.enableDiscordPresence, tr("Enable Discord Presence"), tr("Unchecked"),
-                             tr("Shows the game you are currently playing as part of your profile in Discord."));
 
   dialog->registerWidgetHelp(m_ui.autoUpdateEnabled, tr("Enable Automatic Update Check"), tr("Checked"),
                              tr("Automatically checks for updates to the program on startup. Updates can be deferred "
