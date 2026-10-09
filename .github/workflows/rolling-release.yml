@@ -1,21 +1,8 @@
 name: Create rolling release
 
+# Manual only until the updater, branding and release publishing are reworked
+# for PokketSX.
 on:
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - 'appveyor.yml'
-      - 'scripts/*'
-      - '.github/ISSUE_TEMPLATE/*'
-  push:
-    branches:
-      - master
-      - dev
-    paths-ignore:
-      - '**.md'
-      - 'appveyor.yml'
-      - 'scripts/*'
-      - '.github/ISSUE_TEMPLATE/*'
   workflow_dispatch:
 
 jobs:
