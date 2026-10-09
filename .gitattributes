@@ -13,3 +13,7 @@
 scripts/hooks/* text eol=lf
 CMakeLists.txt text eol=lf
 
+# Vendored dependency archives and fonts must never be altered.
+dep/archives/*.tar.gz binary
+dep/archives/*.zip binary
+dep/fonts/*.otf binary

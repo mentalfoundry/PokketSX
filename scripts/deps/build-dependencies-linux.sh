@@ -77,13 +77,13 @@ cd deps-build
 if [ "$SKIP_DOWNLOAD" != true ]; then
 	curl -C - -L \
 		-O "https://github.com/ianlancetaylor/libbacktrace/archive/$LIBBACKTRACE.zip" \
-		-O "https://github.com/libsdl-org/SDL/releases/download/release-$SDL2/SDL2-$SDL2.tar.gz" \
-		-o "cpuinfo-$CPUINFO.tar.gz" "https://github.com/stenzek/cpuinfo/archive/$CPUINFO.tar.gz" \
-		-o "discord-rpc-$DISCORD_RPC.tar.gz" "https://github.com/stenzek/discord-rpc/archive/$DISCORD_RPC.tar.gz" \
-		-o "lunasvg-$LUNASVG.tar.gz" "https://github.com/stenzek/lunasvg/archive/$LUNASVG.tar.gz" \
-		-o "shaderc-$SHADERC.tar.gz" "https://github.com/stenzek/shaderc/archive/$SHADERC.tar.gz" \
-		-o "soundtouch-$SOUNDTOUCH.tar.gz" "https://github.com/stenzek/soundtouch/archive/$SOUNDTOUCH.tar.gz"
+		-O "https://github.com/libsdl-org/SDL/releases/download/release-$SDL2/SDL2-$SDL2.tar.gz"
 fi
+
+# These were hosted by stenzek and are vendored in dep/archives.
+for archive in "cpuinfo-$CPUINFO" "discord-rpc-$DISCORD_RPC" "lunasvg-$LUNASVG" "shaderc-$SHADERC" "soundtouch-$SOUNDTOUCH"; do
+	cp -f "$SCRIPTDIR/../../dep/archives/$archive.tar.gz" .
+done
 
 cat > SHASUMS <<EOF
 fd6f417fe9e3a071cf1424a5152d926a34c4a3c5070745470be6cf12a404ed79  $LIBBACKTRACE.zip
