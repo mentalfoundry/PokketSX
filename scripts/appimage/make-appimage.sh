@@ -87,12 +87,12 @@ APPIMAGERUNTIME=./runtime-x86_64
 PATCHELF=patchelf
 
 if [ ! -f "$LINUXDEPLOY" ]; then
-	retry_command wget -O "$LINUXDEPLOY" https://github.com/stenzek/duckstation-ext-qt-minimal/releases/download/linux/linuxdeploy-x86_64.AppImage
+	retry_command wget -O "$LINUXDEPLOY" https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
 	chmod +x "$LINUXDEPLOY"
 fi
 
 if [ ! -f "$LINUXDEPLOY_PLUGIN_QT" ]; then
-	retry_command wget -O "$LINUXDEPLOY_PLUGIN_QT" https://github.com/stenzek/duckstation-ext-qt-minimal/releases/download/linux/linuxdeploy-plugin-qt-x86_64.AppImage
+	retry_command wget -O "$LINUXDEPLOY_PLUGIN_QT" https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
 	chmod +x "$LINUXDEPLOY_PLUGIN_QT"
 fi
 
@@ -102,7 +102,7 @@ if [ ! -f "$APPIMAGETOOL" ]; then
 fi
 
 if [ ! -f "$APPIMAGERUNTIME" ]; then
-	retry_command wget -O "$APPIMAGERUNTIME" https://github.com/stenzek/type2-runtime/releases/download/continuous/runtime-x86_64
+	retry_command wget -O "$APPIMAGERUNTIME" https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64
 fi
 
 OUTDIR=$(realpath "./$APPDIRNAME")
