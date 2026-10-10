@@ -16,4 +16,5 @@ CMakeLists.txt text eol=lf
 # Vendored dependency archives and fonts must never be altered.
 dep/archives/*.tar.gz binary
 dep/archives/*.zip binary
+dep/archives/*.patch binary
 dep/fonts/*.otf binary

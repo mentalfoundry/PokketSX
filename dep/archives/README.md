@@ -12,6 +12,8 @@ The build scripts (`scripts/deps/*`) and Flatpak modules (`scripts/flatpak/modul
 | `shaderc-*` | `f60bb80e` | stenzek/shaderc | google/shaderc | Apache-2.0; bundles glslang (BSD-3-Clause, BSD-2-Clause, MIT, Apache-2.0), SPIRV-Tools (Apache-2.0), SPIRV-Headers (MIT-style) |
 | `soundtouch-*` | `463ade38` | stenzek/soundtouch | SoundTouch | LGPL-2.1 (built and shipped as a shared library) |
 
+| `zstd-fd5f8106*.patch` | `fd5f8106` | github.com/facebook/zstd commit patch (GitHub now generates different bytes for it) | facebook/zstd | BSD-3-Clause or GPL-2.0 |
+
 Each archive contains its project's full licence text.
 
 The AppImage packaging tools (linuxdeploy, linuxdeploy-plugin-qt, the type2 runtime) are not vendored. They are prebuilt binaries that bundle GPL and LGPL components, so redistributing them would require providing their corresponding source. `scripts/appimage/make-appimage.sh` downloads them from their upstream projects instead.
