@@ -1,7 +1,6 @@
 name: Create rolling release
 
-# Manual only until the updater, branding and release publishing are reworked
-# for PokketSX.
+# Manual only. Only the Windows x64 build is enabled for now.
 on:
   workflow_dispatch:
 
@@ -9,19 +8,20 @@ jobs:
   windows-build:
     runs-on: windows-2022
     timeout-minutes: 120
+    env:
+      # Deprecated Qt APIs trip C4996, which SDLCheck turns into an error.
+      _CL_: /wd4996
     steps:
-    - uses: actions/checkout@v4.1.6
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Cache Dependencies
       id: cache-deps
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4
       with:
-        path: |
-          dep/msvc/deps-arm64
-          dep/msvc/deps-x64
-        key: deps ${{ hashFiles('scripts/deps/build-dependencies-windows-arm64.bat', 'scripts/deps/build-dependencies-windows-x64.bat') }}
+        path: dep/msvc/deps-x64
+        key: deps-x64 ${{ hashFiles('scripts/deps/build-dependencies-windows-x64.bat') }}
 
     - name: Build X64 Dependencies
       if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -29,46 +29,26 @@ jobs:
         DEBUG: 0
       run: scripts/deps/build-dependencies-windows-x64.bat
 
-    - name: Build ARM64 Dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      env:
-        DEBUG: 0
-      run: scripts/deps/build-dependencies-windows-arm64.bat
-
     - name: Initialize build tag
       shell: cmd
       run: |
         echo #pragma once > src/scmversion/tag.h
 
-    - name: Tag as preview build
-      if: github.ref == 'refs/heads/master'
+    - name: Tag as release build
+      if: github.ref == 'refs/heads/main'
       shell: cmd
       run: |
         echo #define SCM_RELEASE_ASSET "pokketsx-windows-x64-release.zip" >> src/scmversion/tag.h
-        echo #define SCM_RELEASE_TAGS {"latest", "preview"} >> src/scmversion/tag.h
-        echo #define SCM_RELEASE_TAG "preview" >> src/scmversion/tag.h
-
-    - name: Tag as dev build
-      if: github.ref == 'refs/heads/dev'
-      shell: cmd
-      run: |
-        echo #define SCM_RELEASE_ASSET "pokketsx-windows-x64-release.zip" >> src/scmversion/tag.h
-        echo #define SCM_RELEASE_TAGS {"latest", "preview"} >> src/scmversion/tag.h
+        echo #define SCM_RELEASE_TAGS {"latest"} >> src/scmversion/tag.h
         echo #define SCM_RELEASE_TAG "latest" >> src/scmversion/tag.h
-
-    - name: Update RC version fields
-      shell: cmd
-      run: |
-        cd src\scmversion
-        call update_rc_version.bat
-        cd ..\..
-        git update-index --assume-unchanged src/pokketsx-qt/pokketsx-qt.rc
 
     - name: Compile x64 release build
       shell: cmd
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        msbuild pokketsx.sln -t:Build -p:Platform=x64;Configuration=ReleaseLTCG-Clang
+        msbuild pokketsx.sln -t:pokketsx-qt -p:Platform=x64;Configuration=Release -m || exit /b 1
+        rem The solution only builds the updater in ReleaseLTCG-Clang, so build it directly.
+        msbuild src\updater\updater.vcxproj -p:Platform=x64;Configuration=Release -p:SolutionDir=%CD%\ -m || exit /b 1
 
     - name: Create x64 symbols archive
       shell: cmd
@@ -76,10 +56,10 @@ jobs:
         "C:\Program Files\7-Zip\7z.exe" a -r pokketsx-windows-x64-release-symbols.zip ./bin/x64/*.pdb
 
     - name: Remove extra bloat before archiving
-      shell: cmd
+      shell: pwsh
       run: |
-        del /Q bin\x64\*.pdb bin\x64\*.exp bin\x64\*.lib bin\x64\*.iobj bin\x64\*.ipdb bin\x64\common-tests*
-        rename bin\x64\updater-x64-ReleaseLTCG.exe updater.exe
+        Remove-Item bin\x64\* -Include *.pdb,*.exp,*.lib,*.iobj,*.ipdb
+        Rename-Item bin\x64\updater-x64-Release-MSVC.exe updater.exe
 
     - name: Create x64 release archive
       shell: cmd
@@ -87,13 +67,15 @@ jobs:
         "C:\Program Files\7-Zip\7z.exe" a -r pokketsx-windows-x64-release.zip ./bin/x64/*
 
     - name: Upload x64 release artifact
-      uses: actions/upload-artifact@v4.3.3
+      uses: actions/upload-artifact@v4
       with:
         name: "windows"
         path: "pokketsx-windows-x64-release*.zip"
 
 
   windows-arm64-build:
+    # Disabled until the Windows x64 release is working.
+    if: false
     runs-on: windows-2022
     timeout-minutes: 120
     steps:
@@ -182,6 +164,8 @@ jobs:
 
 
   linux-build:
+    # Disabled until the Windows x64 release is working.
+    if: false
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     steps:
@@ -253,6 +237,8 @@ jobs:
 
 
   linux-flatpak-build:
+    # Disabled until the Windows x64 release is working.
+    if: false
     runs-on: ubuntu-22.04
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.7
@@ -311,6 +297,8 @@ jobs:
 
 
   macos-build:
+    # Disabled until the Windows x64 release is working.
+    if: false
     runs-on: macos-14
     timeout-minutes: 120
     steps:
@@ -375,49 +363,27 @@ jobs:
 
 
   create-release:
-    needs: [windows-build, windows-arm64-build, linux-build, linux-flatpak-build, macos-build]
+    needs: [windows-build]
     runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4
         with:
           path: ./artifacts/
 
       - name: Display Downloaded Artifacts
         run: find ./artifacts/
 
-      - name: Create preview release
-        if: github.ref == 'refs/heads/master'
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "preview"
-          prerelease: true
-          title: "Latest Preview Build"
-          files: |
-            ./artifacts/windows/pokketsx-windows-x64-release.zip
+      - name: Create rolling release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+          gh release create latest --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Latest Rolling Release" \
+            --notes "Windows x64 build of ${GITHUB_SHA}." \
+            ./artifacts/windows/pokketsx-windows-x64-release.zip \
             ./artifacts/windows/pokketsx-windows-x64-release-symbols.zip
-            ./artifacts/windows-arm64/pokketsx-windows-arm64-release.zip
-            ./artifacts/windows-arm64/pokketsx-windows-arm64-release-symbols.zip
-            ./artifacts/linux-x64-appimage-qt/PokketSX-x64.AppImage
-            ./artifacts/linux-flatpak/pokketsx-x64.flatpak
-            ./artifacts/macos/pokketsx-mac-release.zip
-
-      - name: Create dev release
-        if: github.ref == 'refs/heads/dev'
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: false
-          title: "Latest Rolling Release"
-          files: |
-            ./artifacts/windows/pokketsx-windows-x64-release.zip
-            ./artifacts/windows/pokketsx-windows-x64-release-symbols.zip
-            ./artifacts/windows-arm64/pokketsx-windows-arm64-release.zip
-            ./artifacts/windows-arm64/pokketsx-windows-arm64-release-symbols.zip
-            ./artifacts/linux-x64-appimage-qt/PokketSX-x64.AppImage
-            ./artifacts/linux-flatpak/pokketsx-x64.flatpak
-            ./artifacts/macos/pokketsx-mac-release.zip
-
