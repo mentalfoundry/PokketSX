@@ -4105,7 +4105,8 @@ void FullscreenUI::DrawMemoryCardSettingsPage()
     DrawToggleSetting(bsi,
                       TinyString::from_format("{}##pocketstation_{}", FSUI_ICONSTR(ICON_FA_SD_CARD, "Use PocketStation"), i),
                       FSUI_CSTR("Emulates a PocketStation in this slot, using the memory card image as its storage. "
-                                "Requires a PocketStation BIOS."),
+                                "Requires a PocketStation BIOS. If this port has a multitap, an ordinary memory card is "
+                                "used instead. Rewind and runahead are turned off while a PocketStation is in use."),
                       "MemoryCards", pocketstation_keys[i], false);
     std::optional<SmallString> path_value(bsi->GetOptionalSmallStringValue(
       "MemoryCards", path_keys[i],
@@ -7423,7 +7424,7 @@ TRANSLATE_NOOP("FullscreenUI", "Downsampling");
 TRANSLATE_NOOP("FullscreenUI", "Downsampling Display Scale");
 TRANSLATE_NOOP("FullscreenUI", "PokketSX is a free and open-source simulator/emulator of the Sony PlayStation(TM) console, based on DuckStation.");
 TRANSLATE_NOOP("FullscreenUI", "Dump Replaceable VRAM Writes");
-TRANSLATE_NOOP("FullscreenUI", "Emulates a PocketStation in this slot, using the memory card image as its storage. Requires a PocketStation BIOS.");
+TRANSLATE_NOOP("FullscreenUI", "Emulates a PocketStation in this slot, using the memory card image as its storage. Requires a PocketStation BIOS. If this port has a multitap, an ordinary memory card is used instead. Rewind and runahead are turned off while a PocketStation is in use.");
 TRANSLATE_NOOP("FullscreenUI", "Emulation Settings");
 TRANSLATE_NOOP("FullscreenUI", "Emulation Speed");
 TRANSLATE_NOOP("FullscreenUI", "Enable 8MB RAM");

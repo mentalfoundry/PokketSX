@@ -824,6 +824,9 @@ void Settings::FixIncompatibleSettings(bool display_osd_messages)
   }
 #endif
 
+  // Also warn when settings change during a game, so that a setting with no effect is not left unexplained.
+  const bool show_pocketstation_warnings = display_osd_messages || System::IsValid();
+
   // Cards behind a multitap are not told about /SEL, which a PocketStation needs.
   for (u32 i = 0; i < NUM_CONTROLLER_AND_CARD_PORTS; i++)
   {
@@ -833,7 +836,7 @@ void Settings::FixIncompatibleSettings(bool display_osd_messages)
       continue;
     }
 
-    if (display_osd_messages)
+    if (show_pocketstation_warnings)
     {
       Host::AddKeyedOSDMessage(
         "pocketstation_multitap",
@@ -849,7 +852,7 @@ void Settings::FixIncompatibleSettings(bool display_osd_messages)
       std::any_of(g_settings.memory_card_pocketstation.begin(), g_settings.memory_card_pocketstation.end(),
                   [](bool enabled) { return enabled; }))
   {
-    if (display_osd_messages)
+    if (show_pocketstation_warnings)
     {
       Host::AddKeyedOSDMessage(
         "pocketstation_rewind_disabled",

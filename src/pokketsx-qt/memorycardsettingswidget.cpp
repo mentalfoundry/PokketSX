@@ -126,8 +126,8 @@ void MemoryCardSettingsWidget::createPortSettingsUi(SettingsWindow* dialog, int 
                                                fmt::format("Card{}PocketStation", index + 1), false);
   dialog->registerWidgetHelp(ui->pocketstation, tr("Use PocketStation"), tr("Unchecked"),
                              tr("Emulates a PocketStation in this slot, using the memory card image as its storage. "
-                                "Requires a PocketStation BIOS. Cannot be used with a multitap on this port, rewind or "
-                                "runahead."));
+                                "Requires a PocketStation BIOS. If this port has a multitap, an ordinary memory card "
+                                "is used instead. Rewind and runahead are turned off while a PocketStation is in use."));
   type_layout->addWidget(ui->pocketstation);
   ui->layout->addLayout(type_layout);
   ui->layout->addWidget(ui->memory_card_type);
