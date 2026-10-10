@@ -6,15 +6,29 @@ PokketSX is a hard fork of DuckStation at commit `14ab642ff` ("Common: Add
 aligned_unique_ptr"), the last commit in which every file was available under
 GPL-3.0. PokketSX is licensed under GPL-3.0 only.
 
-DuckStation changes made after that commit are **not** open source. Do not
+DuckStation's history was rewritten after its license change, so this commit
+has two IDs. `14ab642ff` is its ID in the current upstream history. In the
+original history, as published on 1 September 2024, it is `a5bf1ba5c`. The two
+differ only in the wording of their license headers (both offer GPL-3.0) and in
+a few vector helper functions. `a5bf1ba5c` is the commit preserved by
+[Leah Rowe's archive](https://codeberg.org/vimuser/duckstation), and the base of
+[QuackStation](https://github.com/cameronbosch/quackstation).
+
+DuckStation changes made after the fork point are **not** open source. Do not
 bring any of them into PokketSX, by any route:
 
-- no merges, rebases or cherry-picks from upstream DuckStation or its forks;
+- no merges, rebases or cherry-picks from upstream DuckStation, or from any
+  fork that includes its changes after the fork point;
 - no copying code by hand from newer DuckStation sources;
 - do not add upstream DuckStation as a git remote.
 
 If a later upstream fix is needed, write it independently from a description
 of the bug, not from upstream's code.
+
+Other GPL forks of the same commit, such as QuackStation, are compatible with
+PokketSX. Their changes can be brought in when they are that project's own work
+under a GPL-compatible license, and not copied from DuckStation after the fork
+point. Check where a change came from before bringing it in.
 
 ## File headers
 
