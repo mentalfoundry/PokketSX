@@ -62,7 +62,7 @@ static bool DownloadMissingFont(QWidget* dialog_parent, const char* font_name, c
 static const GlyphInfo* GetGlyphInfo(std::string_view language);
 
 static constexpr const char* DEFAULT_IMGUI_FONT_NAME = "Roboto-Regular.ttf";
-#define MAKE_FONT_DOWNLOAD_URL(name) "https://raw.githubusercontent.com/mentalfoundry/pokketSX/main/dep/fonts/" name
+#define MAKE_FONT_DOWNLOAD_URL(name) "https://raw.githubusercontent.com/mentalfoundry/PokketSX/main/dep/fonts/" name
 
 static std::vector<QTranslator*> s_translators;
 } // namespace QtHost

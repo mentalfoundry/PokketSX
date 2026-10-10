@@ -7094,9 +7094,9 @@ void FullscreenUI::DrawAboutWindow()
 
     BeginMenuButtons();
     if (ActiveButton(FSUI_ICONSTR(ICON_FA_GLOBE, "GitHub Repository"), false))
-      ExitFullscreenAndOpenURL("https://github.com/mentalfoundry/pokketSX");
+      ExitFullscreenAndOpenURL("https://github.com/mentalfoundry/PokketSX");
     if (ActiveButton(FSUI_ICONSTR(ICON_FA_PEOPLE_CARRY, "Contributor List"), false))
-      ExitFullscreenAndOpenURL("https://github.com/mentalfoundry/pokketSX/blob/main/CONTRIBUTORS.md");
+      ExitFullscreenAndOpenURL("https://github.com/mentalfoundry/PokketSX/blob/main/CONTRIBUTORS.md");
 
     if (ActiveButton(FSUI_ICONSTR(ICON_FA_WINDOW_CLOSE, "Close"), false) || WantsToCloseMenu())
     {

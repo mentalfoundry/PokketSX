@@ -1409,12 +1409,12 @@ void MainWindow::onViewGamePropertiesActionTriggered()
 
 void MainWindow::onGitHubRepositoryActionTriggered()
 {
-  QtUtils::OpenURL(this, "https://github.com/mentalfoundry/pokketSX");
+  QtUtils::OpenURL(this, "https://github.com/mentalfoundry/PokketSX");
 }
 
 void MainWindow::onIssueTrackerActionTriggered()
 {
-  QtUtils::OpenURL(this, "https://github.com/mentalfoundry/pokketSX/issues");
+  QtUtils::OpenURL(this, "https://github.com/mentalfoundry/PokketSX/issues");
 }
 
 void MainWindow::onAboutActionTriggered()
@@ -2886,7 +2886,7 @@ void MainWindow::checkForUpdates(bool display_message)
           tr("<p>Sorry, you are trying to update a PokketSX version which is not an official GitHub release. To "
              "prevent incompatibilities, the auto-updater is only enabled on official builds.</p>"
              "<p>Please download an official release from <a "
-             "href=\"https://github.com/mentalfoundry/pokketSX/releases\">GitHub</a>.</p>");
+             "href=\"https://github.com/mentalfoundry/PokketSX/releases\">GitHub</a>.</p>");
       }
       else
       {

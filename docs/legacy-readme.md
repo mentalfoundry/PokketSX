@@ -6,9 +6,9 @@
 
 PokketSX is a simulator/emulator of the Sony PlayStation(TM) console, aiming to add PocketStation support. It is a hard fork of [DuckStation](https://github.com/stenzek/duckstation) at commit `14ab642ff`, the last commit in which all of DuckStation's code was available under the GPL.
 
-**Status:** PocketStation support is in development and is not in this repository yet. There are no PokketSX releases yet; when there are, they will be on the [Releases](https://github.com/mentalfoundry/pokketSX/releases) page.
+**Status:** PocketStation support is in development and is not in this repository yet. There are no PokketSX releases yet; when there are, they will be on the [Releases](https://github.com/mentalfoundry/PokketSX/releases) page.
 
-PokketSX is not affiliated with or supported by the DuckStation project, and is not kept compatible with it: settings, save states, the PINE socket (`pokketsx.sock`) and app identifiers are all separate. Please report PokketSX problems in this repository's [issue tracker](https://github.com/mentalfoundry/pokketSX/issues), not upstream.
+PokketSX is not affiliated with or supported by the DuckStation project, and is not kept compatible with it: settings, save states, the PINE socket (`pokketsx.sock`) and app identifiers are all separate. Please report PokketSX problems in this repository's [issue tracker](https://github.com/mentalfoundry/PokketSX/issues), not upstream.
 
 A PS1 or PS2 "BIOS" ROM image is required to start the emulator and to play games. You can use an image from any hardware version or region, although mismatching game regions and BIOS regions may have compatibility issues. A ROM image is not provided with the emulator for legal reasons; you should dump this from your own console using Caetla or other means.
 
@@ -79,7 +79,7 @@ CHD images with built-in subchannel information are also supported.
 Requirements:
  - Visual Studio 2022 (v143 toolset)
 
-1. Clone the repository: `git clone https://github.com/mentalfoundry/pokketSX.git`.
+1. Clone the repository: `git clone https://github.com/mentalfoundry/PokketSX.git`.
 2. Build the dependencies: from the `scripts\deps` directory, run `build-dependencies-windows-x64.bat`. It sets up the Visual Studio environment itself and installs to `dep\msvc\deps-x64`. This will take a while.
 3. Open the Visual Studio solution `pokketsx.sln` in the root, or "Open Folder" for a CMake build.
 4. Build the solution.
@@ -102,7 +102,7 @@ alsa-lib-devel brotli-devel clang cmake dbus-devel egl-wayland-devel extra-cmake
 
 #### Building
 
-1. Clone the repository: `git clone https://github.com/mentalfoundry/pokketSX.git`, `cd pokketSX`.
+1. Clone the repository: `git clone https://github.com/mentalfoundry/PokketSX.git`, `cd PokketSX`.
 2. Build dependencies. You can save these outside of the tree if you like. This will take a while. `scripts/deps/build-dependencies-linux.sh deps`.
 3. Run CMake to configure the build system. Assuming a build subdirectory of `build-release`, run `cmake -B build-release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_MODULE_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_PREFIX_PATH="$PWD/deps" -G Ninja`. If you want a release (optimized) build, include `-DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON`.
 4. Compile the source code. For the example above, run `ninja -C build-release`.
@@ -114,7 +114,7 @@ Requirements:
  - CMake
  - Xcode
 
-1. Clone the repository: `git clone https://github.com/mentalfoundry/pokketSX.git`.
+1. Clone the repository: `git clone https://github.com/mentalfoundry/PokketSX.git`.
 2. Build the dependencies. This will take a while. `scripts/deps/build-dependencies-mac.sh deps`.
 3. Run CMake to configure the build system: `cmake -Bbuild-release -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON -DCMAKE_PREFIX_PATH="$PWD/deps"`.
 4. Compile the source code: `cmake --build build-release --parallel`.

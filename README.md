@@ -89,7 +89,7 @@ PokketSX is free software, licensed under the [GNU General Public License v3.0 o
 
 PokketSX is a modified version of [DuckStation](https://github.com/stenzek/duckstation) by stenzek and [its contributors](CONTRIBUTORS.md). It is a hard fork of the last DuckStation commit in which every file was available under GPL-3.0: `14ab642ff` in DuckStation's current history, which is `a5bf1ba5c` in its original history (see [CONTRIBUTING.md](CONTRIBUTING.md)). Their copyright notices are kept in the source files, and files changed for PokketSX carry an additional copyright line.
 
-PokketSX is not affiliated with or supported by the DuckStation project, and is not kept compatible with it. Please report PokketSX problems in this repository's [issue tracker](https://github.com/mentalfoundry/pokketSX/issues), not upstream.
+PokketSX is not affiliated with or supported by the DuckStation project, and is not kept compatible with it. Please report PokketSX problems in this repository's [issue tracker](https://github.com/mentalfoundry/PokketSX/issues), not upstream.
 
 ### PocketStation emulation
 

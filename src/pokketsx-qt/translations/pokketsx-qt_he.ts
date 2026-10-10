@@ -6453,7 +6453,7 @@ Do you want to load this save and continue?</source>
     </message>
     <message>
         <location filename="../../core/fullscreen_ui.cpp" line="6869"/>
-        <source>Contributor List: https://github.com/mentalfoundry/pokketSX/blob/main/CONTRIBUTORS.md</source>
+        <source>Contributor List: https://github.com/mentalfoundry/PokketSX/blob/main/CONTRIBUTORS.md</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11649,7 +11649,7 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="2889"/>
-        <source>&lt;p&gt;Sorry, you are trying to update a PokketSX version which is not an official GitHub release. To prevent incompatibilities, the auto-updater is only enabled on official builds.&lt;/p&gt;&lt;p&gt;To obtain an official build, please follow the instructions under &quot;Downloading and Running&quot; at the link below:&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/mentalfoundry/pokketSX/&quot;&gt;https://github.com/mentalfoundry/pokketSX/&lt;/a&gt;&lt;/p&gt;</source>
+        <source>&lt;p&gt;Sorry, you are trying to update a PokketSX version which is not an official GitHub release. To prevent incompatibilities, the auto-updater is only enabled on official builds.&lt;/p&gt;&lt;p&gt;To obtain an official build, please follow the instructions under &quot;Downloading and Running&quot; at the link below:&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/mentalfoundry/PokketSX/&quot;&gt;https://github.com/mentalfoundry/PokketSX/&lt;/a&gt;&lt;/p&gt;</source>
         <translation></translation>
     </message>
     <message>
@@ -13238,7 +13238,7 @@ Do you want to create this directory?</source>
     </message>
     <message>
         <location filename="../setupwizarddialog.ui" line="50"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;h1 style=&quot; margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:xx-large; font-weight:700;&quot;&gt;Welcome to PokketSX!&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;This wizard will help guide you through the configuration steps required to use the application. It is recommended if this is your first time installing PokketSX that you view the setup guide at &lt;a href=&quot;https://github.com/mentalfoundry/pokketSX&quot;&gt;https://github.com/mentalfoundry/pokketSX&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;By default, PokketSX will connect to the server at &lt;a href=&quot;https://github.com/&quot;&gt;github.com&lt;/a&gt; to check for updates, and if available and confirmed, download update packages from &lt;a href=&quot;https://github.com/&quot;&gt;github.com&lt;/a&gt;. If you do not wish for PokketSX to make any network connections on startup, you should uncheck the Automatic Updates option now. The Automatic Update setting can be changed later at any time in Interface Settings.&lt;/p&gt;&lt;p&gt;Please choose a language and theme to begin.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;h1 style=&quot; margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:xx-large; font-weight:700;&quot;&gt;Welcome to PokketSX!&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;This wizard will help guide you through the configuration steps required to use the application. It is recommended if this is your first time installing PokketSX that you view the setup guide at &lt;a href=&quot;https://github.com/mentalfoundry/PokketSX&quot;&gt;https://github.com/mentalfoundry/PokketSX&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;By default, PokketSX will connect to the server at &lt;a href=&quot;https://github.com/&quot;&gt;github.com&lt;/a&gt; to check for updates, and if available and confirmed, download update packages from &lt;a href=&quot;https://github.com/&quot;&gt;github.com&lt;/a&gt;. If you do not wish for PokketSX to make any network connections on startup, you should uncheck the Automatic Updates option now. The Automatic Update setting can be changed later at any time in Interface Settings.&lt;/p&gt;&lt;p&gt;Please choose a language and theme to begin.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
