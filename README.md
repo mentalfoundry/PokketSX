@@ -14,13 +14,13 @@ We are already a niche group of hobbyists - be excellent to each other.
 
 ---
 
-## Legacy README
-The README that PokketSX inherited from DuckStation, with its features, system requirements, build instructions and default bindings, is kept here [docs/legacy-readme.md](docs/legacy-readme.md) for your easy reference in case you need it. Note it looks pretty similar to the current DuckStation readme but will likely contain subtle differences so read it carefully!
+## Project Status
+The Pocketstation to PS1 communication code is functional. Looking to get a release build up soon.
 
 ---
 
-## Project Status
-The Pocketstation to PS1 communication code is functional. Looking to get a release build up soon.
+## Legacy README
+The README that PokketSX inherited from DuckStation, with its features, system requirements, build instructions and default bindings, is kept here [docs/legacy-readme.md](docs/legacy-readme.md) for your easy reference in case you need it. Note it looks pretty similar to the current DuckStation readme but will likely contain subtle differences so read it carefully!
 
 ---
 
