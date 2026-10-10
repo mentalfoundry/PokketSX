@@ -6,7 +6,7 @@ PokketSX is a simulator/emulator of the Sony PlayStation(TM) console, aiming to 
 
 **Status:** PocketStation support is in development and is not in this repository yet. There are no PokketSX releases yet; when there are, they will be on the [Releases](https://github.com/mentalfoundry/pokketSX/releases) page.
 
-PokketSX is not affiliated with or supported by the DuckStation project. Please report PokketSX problems in this repository's [issue tracker](https://github.com/mentalfoundry/pokketSX/issues), not upstream.
+PokketSX is not affiliated with or supported by the DuckStation project, and is not kept compatible with it: settings, save states, the PINE socket (`pokketsx.sock`) and app identifiers are all separate. Please report PokketSX problems in this repository's [issue tracker](https://github.com/mentalfoundry/pokketSX/issues), not upstream.
 
 A PS1 or PS2 "BIOS" ROM image is required to start the emulator and to play games. You can use an image from any hardware version or region, although mismatching game regions and BIOS regions may have compatibility issues. A ROM image is not provided with the emulator for legal reasons; you should dump this from your own console using Caetla or other means.
 
