@@ -895,7 +895,7 @@ void FullscreenUI::ReturnToMainWindow()
 
 bool FullscreenUI::LoadResources()
 {
-  s_app_icon_texture = LoadTexture("images/duck.png");
+  s_app_icon_texture = LoadTexture("images/app-icon.png");
 
   s_fallback_disc_texture = LoadTexture("fullscreenui/media-cdrom.png");
   s_fallback_exe_texture = LoadTexture("fullscreenui/applications-system.png");
@@ -7034,9 +7034,6 @@ void FullscreenUI::DrawAboutWindow()
     ImGui::TextWrapped(FSUI_CSTR("Version: %s"), g_scm_tag_str);
     ImGui::NewLine();
     ImGui::TextWrapped(
-      "%s", FSUI_CSTR("Duck icon by icons8 (https://icons8.com/icon/74847/platforms.undefined.short-title)"));
-    ImGui::NewLine();
-    ImGui::TextWrapped(
       "%s", FSUI_CSTR("\"PlayStation\" and \"PSX\" are registered trademarks of Sony Interactive Entertainment Europe "
                       "Limited. This software is not affiliated in any way with Sony Interactive Entertainment."));
 
@@ -7370,7 +7367,6 @@ TRANSLATE_NOOP("FullscreenUI", "Downloads covers from a user-specified URL templ
 TRANSLATE_NOOP("FullscreenUI", "Downsamples the rendered image prior to displaying it. Can improve overall image quality in mixed 2D/3D games.");
 TRANSLATE_NOOP("FullscreenUI", "Downsampling");
 TRANSLATE_NOOP("FullscreenUI", "Downsampling Display Scale");
-TRANSLATE_NOOP("FullscreenUI", "Duck icon by icons8 (https://icons8.com/icon/74847/platforms.undefined.short-title)");
 TRANSLATE_NOOP("FullscreenUI", "PokketSX is a free and open-source simulator/emulator of the Sony PlayStation(TM) console, based on DuckStation.");
 TRANSLATE_NOOP("FullscreenUI", "Dump Replaceable VRAM Writes");
 TRANSLATE_NOOP("FullscreenUI", "Emulation Settings");

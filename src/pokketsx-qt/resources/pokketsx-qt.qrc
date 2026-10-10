@@ -134,9 +134,9 @@
 		<file>icons/drive-optical.png</file>
 		<file>icons/drive-removable-media@2x.png</file>
 		<file>icons/drive-removable-media.png</file>
-		<file>icons/duck_128.png</file>
-		<file>icons/duck_64.png</file>
-		<file>icons/duck.png</file>
+		<file>icons/app-icon-128.png</file>
+		<file>icons/app-icon-64.png</file>
+		<file>icons/app-icon.png</file>
 		<file>icons/edit-clear-16@2x.png</file>
 		<file>icons/edit-clear-16.png</file>
 		<file>icons/edit-find.png</file>
@@ -245,7 +245,7 @@
 		<file>icons/system-shutdown.png</file>
 		<file>icons/trophy@2x.png</file>
 		<file>icons/trophy.png</file>
-		<file>icons/UpdateDuck.png</file>
+		<file>icons/update-icon.png</file>
 		<file>icons/update.png</file>
 		<file>icons/utilities-system-monitor@2x.png</file>
 		<file>icons/utilities-system-monitor.png</file>

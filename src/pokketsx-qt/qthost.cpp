@@ -257,7 +257,7 @@ bool QtHost::SaveGameSettings(SettingsInterface* sif, bool delete_if_empty)
 
 const QIcon& QtHost::GetAppIcon()
 {
-  static QIcon icon = QIcon(QStringLiteral(":/icons/duck.png"));
+  static QIcon icon = QIcon(QStringLiteral(":/icons/app-icon.png"));
   return icon;
 }
 

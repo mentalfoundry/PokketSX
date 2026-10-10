@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources/pokketsx-qt.qrc">
-    <normaloff>:/icons/duck.png</normaloff>:/icons/duck.png</iconset>
+    <normaloff>:/icons/app-icon.png</normaloff>:/icons/app-icon.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

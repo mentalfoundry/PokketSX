@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "imgui_overlays.h"
 #include "cdrom.h"
@@ -111,7 +112,7 @@ void Host::DisplayLoadingScreen(const char* message, int progress_min /*= -1*/, 
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing |
                      ImGuiWindowFlags_NoBackground))
   {
-    GPUTexture* tex = ImGuiFullscreen::GetCachedTexture("images/duck.png");
+    GPUTexture* tex = ImGuiFullscreen::GetCachedTexture("images/app-icon.png");
     if (tex)
       ImGui::Image(tex, ImVec2(logo_width, logo_height));
   }

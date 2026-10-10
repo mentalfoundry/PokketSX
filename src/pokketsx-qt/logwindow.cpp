@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2023 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "logwindow.h"
 #include "mainwindow.h"
@@ -109,7 +110,7 @@ void LogWindow::updateWindowTitle()
 void LogWindow::createUi()
 {
   QIcon icon;
-  icon.addFile(QString::fromUtf8(":/icons/duck.png"), QSize(), QIcon::Normal, QIcon::Off);
+  icon.addFile(QString::fromUtf8(":/icons/app-icon.png"), QSize(), QIcon::Normal, QIcon::Off);
   setWindowIcon(icon);
   setWindowFlag(Qt::WindowCloseButtonHint, false);
   updateWindowTitle();
