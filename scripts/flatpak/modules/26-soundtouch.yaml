@@ -14,7 +14,7 @@ config-opts:
 build-options:
   strip: true
 sources:
-  # Was hosted by stenzek; vendored in dep/archives.
+  # Vendored in dep/archives; see dep/archives/README.md.
   - type: archive
     path: "../../../dep/archives/soundtouch-463ade388f3a51da078dc9ed062bf28e4ba29da7.tar.gz"
     sha256: "fe45c2af99f6102d2704277d392c1c83b55180a70bfd17fb888cc84a54b70573"

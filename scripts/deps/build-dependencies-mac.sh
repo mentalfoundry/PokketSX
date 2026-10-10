@@ -108,7 +108,7 @@ curl -L \
 	-O "https://download.qt.io/official_releases/qt/${QT%.*}/$QT/submodules/qttools-everywhere-src-$QT.tar.xz" \
 	-O "https://download.qt.io/official_releases/qt/${QT%.*}/$QT/submodules/qttranslations-everywhere-src-$QT.tar.xz"
 
-# These were hosted by stenzek and are vendored in dep/archives.
+# Vendored in dep/archives; see dep/archives/README.md.
 for archive in "cpuinfo-$CPUINFO" "discord-rpc-$DISCORD_RPC" "lunasvg-$LUNASVG" "shaderc-$SHADERC" "soundtouch-$SOUNDTOUCH"; do
 	cp -f "$SCRIPTDIR/../../dep/archives/$archive.tar.gz" .
 done

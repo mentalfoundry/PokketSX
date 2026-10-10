@@ -12,7 +12,7 @@ A PS1 or PS2 "BIOS" ROM image is required to start the emulator and to play game
 
 ## Features
 
-PokketSX has a full desktop frontend built using Qt, as well as a fullscreen/TV UI based on Dear ImGui. Features inherited from DuckStation include:
+PokketSX has a full desktop frontend built using Qt, as well as a fullscreen/TV UI based on Dear ImGui. Features include:
 
  - CPU Recompiler/JIT (x86-64, armv7/AArch32, AArch64, RISC-V/RV64).
  - Hardware (D3D11, D3D12, OpenGL, Vulkan, Metal) and software rendering.
@@ -68,7 +68,7 @@ Requirements:
 
 1. Clone the repository: `git clone https://github.com/mentalfoundry/pokketSX.git`.
 2. Build the dependencies: from the `scripts\deps` directory, run `build-dependencies-windows-x64.bat`. It sets up the Visual Studio environment itself and installs to `dep\msvc\deps-x64`. This will take a while.
-3. Open the Visual Studio solution `duckstation.sln` in the root, or "Open Folder" for a CMake build.
+3. Open the Visual Studio solution `pokketsx.sln` in the root, or "Open Folder" for a CMake build.
 4. Build the solution.
 5. Binaries are located in `bin/x64`.
 6. Run `pokketsx-qt-x64-Release-MSVC.exe`, or the executable for whichever configuration you built.
@@ -119,7 +119,7 @@ This is located in the following places depending on the platform you're using:
 
 So, if you were using Linux, you would place your BIOS images in `~/.local/share/pokketsx/bios`. This directory will be created upon running PokketSX for the first time.
 
-PokketSX does not share settings, memory cards or save states with DuckStation. To bring them over, copy them from the DuckStation user directory into the PokketSX one.
+PokketSX keeps its own settings, memory cards and save states here, separate from any other emulator. To bring existing ones over, copy them into this directory.
 
 If you wish to use a "portable" build, where the user directory is the same as where the executable is located, create an empty file named `portable.txt` in the same directory as the PokketSX executable.
 

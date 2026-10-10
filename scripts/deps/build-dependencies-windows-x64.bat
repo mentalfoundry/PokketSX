@@ -75,7 +75,7 @@ call :downloadfile "zlib%ZLIBSHORT%.zip" "https://zlib.net/zlib%ZLIBSHORT%.zip" 
 call :downloadfile "zstd-%ZSTD%.zip" "https://github.com/facebook/zstd/archive/refs/tags/v%ZSTD%.zip" 3b1c3b46e416d36931efd34663122d7f51b550c87f74de2d38249516fe7d8be5 || goto error
 call :downloadfile "zstd-fd5f8106a58601a963ee816e6a57aa7c61fafc53.patch" https://github.com/facebook/zstd/commit/fd5f8106a58601a963ee816e6a57aa7c61fafc53.patch 675f144b11f8ab2424b64bed8ccdca5d3f35b9326046fa7a883925dd180f0651 || goto error
 
-rem These were hosted by stenzek and are vendored in dep\archives.
+rem Vendored in dep\archives; see dep\archives\README.md.
 call :copyarchive "cpuinfo-%CPUINFO%.zip" 13146ae7983d767a678dd01b0d6af591e77cec82babd41264b9164ab808d7d41 || goto error
 call :copyarchive "discord-rpc-%DISCORD_RPC%.zip" 61e185e75d37b360c314125bcdf4697192d15e2d5209db3306ed6cd736d508b3 || goto error
 call :copyarchive "lunasvg-%LUNASVG%.zip" 1425ec2bda0228b73ffdc70b0dc666fc7d2b69c33eec75a35c4421157c0e220c || goto error

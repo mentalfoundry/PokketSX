@@ -1,6 +1,6 @@
 # Vendored dependency archives
 
-These source archives were previously downloaded from repositories hosted by stenzek (DuckStation's author). They are kept here so PokketSX builds do not depend on those repositories staying online; `stenzek/lunasvg` has already been deleted.
+These source archives were previously downloaded from repositories hosted by stenzek (the upstream author). They are kept here so PokketSX builds do not depend on those repositories staying online; `stenzek/lunasvg` has already been deleted.
 
 The build scripts (`scripts/deps/*`) and Flatpak modules (`scripts/flatpak/modules/*`) copy these files instead of downloading them, and still verify each one against its SHA-256. Each file is byte-identical to the archive GitHub served for the pinned commit, so the checksums are unchanged.
 

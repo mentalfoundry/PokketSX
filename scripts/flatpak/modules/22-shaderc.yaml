@@ -9,7 +9,7 @@ config-opts:
 build-options:
   strip: true
 sources:
-  # Was hosted by stenzek; vendored in dep/archives.
+  # Vendored in dep/archives; see dep/archives/README.md.
   - type: archive
     path: "../../../dep/archives/shaderc-f60bb80e255144e71776e2ad570d89b78ea2ab4f.tar.gz"
     sha256: "4c1780b6c65c27c4dcb109f08ab632241c98b77fe2e22be726c151ff514482bf"

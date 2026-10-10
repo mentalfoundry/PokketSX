@@ -80,7 +80,7 @@ if [ "$SKIP_DOWNLOAD" != true ]; then
 		-O "https://github.com/libsdl-org/SDL/releases/download/release-$SDL2/SDL2-$SDL2.tar.gz"
 fi
 
-# These were hosted by stenzek and are vendored in dep/archives.
+# Vendored in dep/archives; see dep/archives/README.md.
 for archive in "cpuinfo-$CPUINFO" "discord-rpc-$DISCORD_RPC" "lunasvg-$LUNASVG" "shaderc-$SHADERC" "soundtouch-$SOUNDTOUCH"; do
 	cp -f "$SCRIPTDIR/../../dep/archives/$archive.tar.gz" .
 done
