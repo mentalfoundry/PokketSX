@@ -8,9 +8,6 @@ jobs:
   windows-build:
     runs-on: windows-2022
     timeout-minutes: 120
-    env:
-      # Deprecated Qt APIs trip C4996, which SDLCheck turns into an error.
-      _CL_: /wd4996
     steps:
     - uses: actions/checkout@v4
       with:
@@ -44,6 +41,10 @@ jobs:
 
     - name: Compile x64 release build
       shell: cmd
+      env:
+        # Deprecated Qt APIs trip C4996, which SDLCheck turns into an error. Set only
+        # here, since clang-cl also reads _CL_ and rejects it when building deps.
+        _CL_: /wd4996
       run: |
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         msbuild pokketsx.sln -t:pokketsx-qt -p:Platform=x64;Configuration=Release -m || exit /b 1
