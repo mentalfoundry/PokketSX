@@ -16,15 +16,35 @@ bring any of them into PokketSX, by any route:
 If a later upstream fix is needed, write it independently from a description
 of the bug, not from upstream's code.
 
-Keep existing copyright and license headers intact. New files should carry a
-GPL-3.0 SPDX header.
+## File headers
+
+Most source files inherited from DuckStation carry a dual license header,
+`(GPL-3.0 OR CC-BY-NC-ND-4.0)` or `(GPL-3.0 OR PolyForm-Strict-1.0.0)`.
+PokketSX uses every such file under its GPL-3.0 option. Leave those headers
+unchanged in files you have not modified.
+
+Never remove or alter an existing copyright line. When you modify a file, add
+your own copyright line below the existing ones and, if the file has a dual
+license header, change it to GPL-3.0 (a modified file can only be distributed
+under that option):
+
+```cpp
+// SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
+// SPDX-FileCopyrightText: 2026 Your Name
+// SPDX-License-Identifier: GPL-3.0
+```
+
+New files carry your copyright line and `GPL-3.0`. Third-party code keeps its
+own license header.
 
 ## License check
 
-`scripts/check-license.sh` fails if any commit since the fork point carries a
-non-commercial Creative Commons license header, or if upstream history after the
-fork point is present. CI runs it on every push and pull request. To run it
-before every push locally:
+`scripts/check-license.sh` fails if upstream history after the fork point is
+present, or if any commit since the fork point has an SPDX license expression
+that does not allow use under GPL-3.0. Expressions are checked against an
+allow-list of GPL-compatible licenses, so an unknown license fails whatever its
+name. CI runs it on every push and pull request. To run it before every push
+locally:
 
 ```
 git config core.hooksPath scripts/hooks
