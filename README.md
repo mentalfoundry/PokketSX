@@ -1,6 +1,6 @@
 # PokketSX - PlayStation 1 Emulator
 
-[Features](#features) | [Building](#building) | [User Directories](#user-directories) | [Licence and Credits](#licence-and-credits)
+[What to Expect](#what-to-expect) | [Features](#features) | [Building](#building) | [User Directories](#user-directories) | [Licence and Credits](#licence-and-credits)
 
 PokketSX is a simulator/emulator of the Sony PlayStation(TM) console, aiming to add PocketStation support. It is a hard fork of [DuckStation](https://github.com/stenzek/duckstation) at commit `14ab642ff`, the last commit in which all of DuckStation's code was available under the GPL.
 
@@ -9,6 +9,17 @@ PokketSX is a simulator/emulator of the Sony PlayStation(TM) console, aiming to 
 PokketSX is not affiliated with or supported by the DuckStation project, and is not kept compatible with it: settings, save states, the PINE socket (`pokketsx.sock`) and app identifiers are all separate. Please report PokketSX problems in this repository's [issue tracker](https://github.com/mentalfoundry/pokketSX/issues), not upstream.
 
 A PS1 or PS2 "BIOS" ROM image is required to start the emulator and to play games. You can use an image from any hardware version or region, although mismatching game regions and BIOS regions may have compatibility issues. A ROM image is not provided with the emulator for legal reasons; you should dump this from your own console using Caetla or other means.
+
+## What to expect
+
+PokketSX is built on DuckStation's September 2024 code and focuses on PocketStation support. It does not follow newer DuckStation releases, so compared with current DuckStation:
+
+- Some games may behave differently, run slower, or need settings adjusted by hand. Newer emulation fixes and per-game settings are not included.
+- Cheats, save states, shaders and settings from newer DuckStation versions may not work. Only load save states from sources you trust.
+- Newer interface features, graphics options, tools and controller types are not available.
+- Controller input uses SDL2, so very recent controllers may be less well supported.
+
+PokketSX still runs on macOS 11 and later.
 
 ## Features
 
