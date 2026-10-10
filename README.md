@@ -170,7 +170,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). In short: PokketSX must never take in Du
 
 PokketSX is licensed under the [GNU General Public License v3.0](LICENSE).
 
-PokketSX is based on DuckStation by Connor McLaughlin and [its contributors](CONTRIBUTORS.md). Their copyright notices are preserved in the source.
+PokketSX is based on DuckStation by stenzek and [its contributors](CONTRIBUTORS.md). Their copyright notices are preserved in the source.
 
 Icon by icons8: https://icons8.com/icon/74847/platforms.undefined.short-title
 
