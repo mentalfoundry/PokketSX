@@ -3246,6 +3246,50 @@ void FullscreenUI::DrawBIOSSettingsPage()
     }
   }
 
+  {
+    const std::optional<SmallString> filename(bsi->GetOptionalSmallStringValue(
+      "MemoryCards", "PocketStationBiosPath", game_settings ? std::nullopt : std::optional<const char*>("")));
+
+    if (MenuButtonWithValue(FSUI_CSTR("BIOS for PocketStation"),
+                            FSUI_CSTR("BIOS to use when a memory card slot holds a PocketStation."),
+                            filename.has_value() ? (filename->empty() ? FSUI_CSTR("Auto-Detect") : filename->c_str()) :
+                                                   FSUI_CSTR("Use Global Setting")))
+    {
+      ImGuiFullscreen::ChoiceDialogOptions options;
+      std::vector<std::string> names;
+      auto images = BIOS::FindPocketStationBIOSImagesInDirectory(EmuFolders::Bios.c_str());
+      options.reserve(images.size() + 2);
+      if (game_settings)
+        options.emplace_back(FSUI_STR("Use Global Setting"), !filename.has_value());
+      options.emplace_back(FSUI_STR("Auto-Detect"), filename.has_value() && filename->empty());
+      for (auto& [name, known] : images)
+      {
+        const bool selected = (filename.has_value() && filename.value() == name);
+        options.emplace_back(known ? name : fmt::format(FSUI_FSTR("{} (Unknown)"), name), selected);
+        names.push_back(std::move(name));
+      }
+
+      OpenChoiceDialog(FSUI_CSTR("BIOS for PocketStation"), false, std::move(options),
+                       [game_settings, names = std::move(names)](s32 index, const std::string& title, bool checked) {
+                         if (index >= 0)
+                         {
+                           auto lock = Host::GetSettingsLock();
+                           SettingsInterface* bsi = GetEditingSettingsInterface(game_settings);
+                           const s32 first_image = game_settings ? 2 : 1;
+                           if (game_settings && index == 0)
+                             bsi->DeleteValue("MemoryCards", "PocketStationBiosPath");
+                           else if (index < first_image)
+                             bsi->SetStringValue("MemoryCards", "PocketStationBiosPath", "");
+                           else
+                             bsi->SetStringValue("MemoryCards", "PocketStationBiosPath",
+                                                 names[index - first_image].c_str());
+                           SetSettingsChanged(bsi);
+                         }
+                         CloseChoiceDialog();
+                       });
+    }
+  }
+
   DrawFolderSetting(bsi, FSUI_CSTR("BIOS Directory"), "BIOS", "SearchDirectory", EmuFolders::Bios);
 
   MenuHeading(FSUI_CSTR("Patches"));
@@ -4015,6 +4059,7 @@ void FullscreenUI::DrawMemoryCardSettingsPage()
 {
   static constexpr const std::array type_keys = {"Card1Type", "Card2Type"};
   static constexpr const std::array path_keys = {"Card1Path", "Card2Path"};
+  static constexpr const std::array pocketstation_keys = {"Card1PocketStation", "Card2PocketStation"};
 
   SettingsInterface* bsi = GetEditingSettingsInterface();
   const bool game_settings = IsEditingGameSettings(bsi);
@@ -4055,6 +4100,13 @@ void FullscreenUI::DrawMemoryCardSettingsPage()
           .c_str())
         .value_or(default_type);
     const bool is_shared = (effective_type == MemoryCardType::Shared);
+
+    // A multitap on this port is checked when the settings are applied, since it can change after this page opens.
+    DrawToggleSetting(bsi,
+                      TinyString::from_format("{}##pocketstation_{}", FSUI_ICONSTR(ICON_FA_SD_CARD, "Use PocketStation"), i),
+                      FSUI_CSTR("Emulates a PocketStation in this slot, using the memory card image as its storage. "
+                                "Requires a PocketStation BIOS."),
+                      "MemoryCards", pocketstation_keys[i], false);
     std::optional<SmallString> path_value(bsi->GetOptionalSmallStringValue(
       "MemoryCards", path_keys[i],
       IsEditingGameSettings(bsi) ? std::nullopt :
@@ -7256,7 +7308,9 @@ TRANSLATE_NOOP("FullscreenUI", "Avoids calls to C++ code, significantly speeding
 TRANSLATE_NOOP("FullscreenUI", "BIOS Directory");
 TRANSLATE_NOOP("FullscreenUI", "BIOS Selection");
 TRANSLATE_NOOP("FullscreenUI", "BIOS Settings");
+TRANSLATE_NOOP("FullscreenUI", "BIOS for PocketStation");
 TRANSLATE_NOOP("FullscreenUI", "BIOS for {}");
+TRANSLATE_NOOP("FullscreenUI", "BIOS to use when a memory card slot holds a PocketStation.");
 TRANSLATE_NOOP("FullscreenUI", "BIOS to use when emulating {} consoles.");
 TRANSLATE_NOOP("FullscreenUI", "Back");
 TRANSLATE_NOOP("FullscreenUI", "Back To Pause Menu");
@@ -7369,6 +7423,7 @@ TRANSLATE_NOOP("FullscreenUI", "Downsampling");
 TRANSLATE_NOOP("FullscreenUI", "Downsampling Display Scale");
 TRANSLATE_NOOP("FullscreenUI", "PokketSX is a free and open-source simulator/emulator of the Sony PlayStation(TM) console, based on DuckStation.");
 TRANSLATE_NOOP("FullscreenUI", "Dump Replaceable VRAM Writes");
+TRANSLATE_NOOP("FullscreenUI", "Emulates a PocketStation in this slot, using the memory card image as its storage. Requires a PocketStation BIOS.");
 TRANSLATE_NOOP("FullscreenUI", "Emulation Settings");
 TRANSLATE_NOOP("FullscreenUI", "Emulation Speed");
 TRANSLATE_NOOP("FullscreenUI", "Enable 8MB RAM");
@@ -7783,6 +7838,7 @@ TRANSLATE_NOOP("FullscreenUI", "Use Debug GPU Device");
 TRANSLATE_NOOP("FullscreenUI", "Use Global Setting");
 TRANSLATE_NOOP("FullscreenUI", "Use Light Theme");
 TRANSLATE_NOOP("FullscreenUI", "Use Old MDEC Routines");
+TRANSLATE_NOOP("FullscreenUI", "Use PocketStation");
 TRANSLATE_NOOP("FullscreenUI", "Use Single Card For Multi-Disc Games");
 TRANSLATE_NOOP("FullscreenUI", "Use Software Renderer For Readbacks");
 TRANSLATE_NOOP("FullscreenUI", "Username: {}");
@@ -7818,6 +7874,7 @@ TRANSLATE_NOOP("FullscreenUI", "reset");
 TRANSLATE_NOOP("FullscreenUI", "shut down");
 TRANSLATE_NOOP("FullscreenUI", "{:%H:%M}");
 TRANSLATE_NOOP("FullscreenUI", "{:%Y-%m-%d %H:%M:%S}");
+TRANSLATE_NOOP("FullscreenUI", "{} (Unknown)");
 TRANSLATE_NOOP("FullscreenUI", "{} Frames");
 TRANSLATE_NOOP("FullscreenUI", "{} deleted.");
 TRANSLATE_NOOP("FullscreenUI", "{} does not exist.");
