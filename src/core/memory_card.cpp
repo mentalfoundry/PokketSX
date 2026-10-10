@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "memory_card.h"
 #include "host.h"
+#include "pocketstation.h"
 #include "system.h"
 
 #include "util/imgui_manager.h"
@@ -30,6 +32,12 @@ MemoryCard::MemoryCard()
 
 MemoryCard::~MemoryCard()
 {
+  if (m_pocketstation)
+  {
+    m_pocketstation->PrepareForSave();
+    if (m_pocketstation->SaveFlash(&m_data))
+      m_changed = true;
+  }
   SaveIfChanged(false);
 }
 
@@ -45,10 +53,35 @@ void MemoryCard::Reset()
   m_FLAG.no_write_yet = true;
 }
 
+void MemoryCard::PrepareForShutdown()
+{
+  if (m_pocketstation)
+    m_pocketstation->PrepareForSave();
+}
+
+bool MemoryCard::AttachPocketStation(u32 slot, std::span<const u8> bios, Error* error)
+{
+  // The device writes its own flash, so queue a save when it does.
+  std::unique_ptr<PocketStation> ps =
+    PocketStation::Create(bios, m_data, slot, [this]() { QueueFileSave(); }, error);
+  if (!ps)
+    return false;
+
+  m_pocketstation = std::move(ps);
+  return true;
+}
+
+TickCount MemoryCard::GetACKTicks() const
+{
+  return m_pocketstation ? m_pocketstation->GetACKTicks() : ACK_TICKS;
+}
+
 bool MemoryCard::DoState(StateWrapper& sw)
 {
   if (sw.IsReading())
     SaveIfChanged(true);
+  else if (m_pocketstation && m_pocketstation->SaveFlash(&m_data))
+    m_changed = true;
 
   sw.Do(&m_state);
   sw.Do(&m_FLAG.bits);
@@ -59,12 +92,27 @@ bool MemoryCard::DoState(StateWrapper& sw)
   sw.Do(&m_data);
   sw.Do(&m_changed);
 
+  // A state load does not rewind the device. Keep its flash as the card data, and end any transfer in progress.
+  if (sw.IsReading() && m_pocketstation)
+  {
+    m_pocketstation->SaveFlash(&m_data);
+    m_changed = false;
+    ResetTransferState();
+  }
+
   return !sw.HasError();
 }
 
 void MemoryCard::CopyState(const MemoryCard* src)
 {
   DebugAssert(m_data == src->m_data);
+
+  // See DoState().
+  if (m_pocketstation)
+  {
+    ResetTransferState();
+    return;
+  }
 
   m_state = src->m_state;
   m_FLAG.bits = src->m_FLAG.bits;
@@ -77,6 +125,12 @@ void MemoryCard::CopyState(const MemoryCard* src)
 
 void MemoryCard::ResetTransferState()
 {
+  if (m_pocketstation)
+  {
+    m_pocketstation->ResetTransferState(m_pocketstation_selected);
+    m_pocketstation_selected = false;
+  }
+
   m_state = State::Idle;
   m_address = 0;
   m_sector_offset = 0;
@@ -84,8 +138,25 @@ void MemoryCard::ResetTransferState()
   m_last_byte = 0;
 }
 
+void MemoryCard::Select()
+{
+  if (!m_pocketstation)
+    return;
+
+  // Released in ResetTransferState(), even if no byte follows, e.g. when the console only reads the controller.
+  m_pocketstation_selected = true;
+  m_pocketstation->Select();
+}
+
 bool MemoryCard::Transfer(const u8 data_in, u8* data_out)
 {
+  // The device's BIOS answers every command, including the standard ones.
+  if (m_pocketstation)
+  {
+    m_pocketstation_selected = true;
+    return m_pocketstation->Transfer(data_in, data_out);
+  }
+
   bool ack = false;
 #ifdef _DEBUG
   const State old_state = m_state;
@@ -326,6 +397,10 @@ void MemoryCard::Format()
 bool MemoryCard::SaveIfChanged(bool display_osd_message)
 {
   m_save_event.Deactivate();
+
+  // The device writes its own flash, which the state machine does not see.
+  if (m_pocketstation && m_pocketstation->SaveFlash(&m_data))
+    m_changed = true;
 
   if (!m_changed)
     return true;

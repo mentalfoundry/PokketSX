@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com> and contributors.
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "pad.h"
 #include "controller.h"
@@ -94,7 +95,7 @@ static TickCount GetTransferTicks();
 // Memory card responds faster, approximately 5us or ~170 ticks.
 static constexpr TickCount GetACKTicks(bool memory_card)
 {
-  return memory_card ? 170 : 450;
+  return memory_card ? MemoryCard::ACK_TICKS : 450;
 }
 
 static void SoftReset();
@@ -632,6 +633,8 @@ void Pad::WriteRegister(u32 offset, u32 value)
     {
       DEBUG_LOG("JOY_CTRL <- 0x{:04X}", value);
 
+      const bool was_selected = s_JOY_CTRL.SELECT;
+      const u8 old_slot = s_JOY_CTRL.SLOT;
       s_JOY_CTRL.bits = Truncate16(value);
       if (s_JOY_CTRL.RESET)
         SoftReset();
@@ -645,6 +648,16 @@ void Pad::WriteRegister(u32 offset, u32 value)
 
       if (!s_JOY_CTRL.SELECT)
         ResetDeviceTransferState();
+
+      // A PocketStation reacts to /SEL itself, before the first byte. The card is found the same way as in
+      // DoTransfer(), so it is the one that receives the bytes.
+      if (s_JOY_CTRL.SELECT && (!was_selected || old_slot != s_JOY_CTRL.SLOT) &&
+          !s_multitaps[s_JOY_CTRL.SLOT].IsEnabled())
+      {
+        const u8 device_index = s_multitaps[0].IsEnabled() ? 4u : s_JOY_CTRL.SLOT;
+        if (MemoryCard* const memory_card = s_memory_cards[device_index].get())
+          memory_card->Select();
+      }
 
       if (!s_JOY_CTRL.SELECT || !s_JOY_CTRL.TXEN)
       {
@@ -870,7 +883,10 @@ void Pad::DoTransfer(TickCount ticks_late)
       s_active_device == ActiveDevice::MemoryCard ||
       (s_active_device == ActiveDevice::Multitap && s_multitaps[s_JOY_CTRL.SLOT].IsReadingMemoryCard());
 
-    const TickCount ack_timer = GetACKTicks(memcard_transfer);
+    // A PocketStation's ACK delay varies per byte.
+    const TickCount ack_timer = (s_active_device == ActiveDevice::MemoryCard && memory_card) ?
+                                  memory_card->GetACKTicks() :
+                                  GetACKTicks(memcard_transfer);
     DEBUG_LOG("Delaying ACK for {} ticks", ack_timer);
     s_state = State::WaitingForACK;
     s_transfer_event.SetPeriodAndSchedule(ack_timer);

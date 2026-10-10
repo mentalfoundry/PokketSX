@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>.
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
@@ -23,7 +24,8 @@ enum : u32
   BIOS_BASE = 0x1FC00000,
   BIOS_SIZE = 0x80000,
   BIOS_SIZE_PS2 = 0x400000,
-  BIOS_SIZE_PS3 = 0x3E66F0
+  BIOS_SIZE_PS3 = 0x3E66F0,
+  POCKETSTATION_BIOS_SIZE = 0x4000
 };
 
 struct ImageInfo
@@ -95,6 +97,9 @@ std::optional<Image> FindBIOSImageInDirectory(ConsoleRegion region, const char* 
 
 /// Returns a list of filenames and descriptions for BIOS images in a directory.
 std::vector<std::pair<std::string, const BIOS::ImageInfo*>> FindBIOSImagesInDirectory(const char* directory);
+
+/// Returns a list of filenames for PocketStation BIOS images in a directory, and whether each is the known-good dump.
+std::vector<std::pair<std::string, bool>> FindPocketStationBIOSImagesInDirectory(const char* directory);
 
 /// Returns true if any BIOS images are found in the configured BIOS directory.
 bool HasAnyBIOSImages();

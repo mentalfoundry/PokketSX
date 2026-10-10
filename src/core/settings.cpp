@@ -396,7 +396,10 @@ void Settings::Load(SettingsInterface& si, SettingsInterface& controller_si)
       .value_or(DEFAULT_MEMORY_CARD_2_TYPE);
   memory_card_paths[0] = si.GetStringValue("MemoryCards", "Card1Path", "");
   memory_card_paths[1] = si.GetStringValue("MemoryCards", "Card2Path", "");
+  memory_card_pocketstation[0] = si.GetBoolValue("MemoryCards", "Card1PocketStation", false);
+  memory_card_pocketstation[1] = si.GetBoolValue("MemoryCards", "Card2PocketStation", false);
   memory_card_use_playlist_title = si.GetBoolValue("MemoryCards", "UsePlaylistTitle", true);
+  pocketstation_bios_path = si.GetStringValue("MemoryCards", "PocketStationBiosPath", "");
 
   achievements_enabled = si.GetBoolValue("Cheevos", "Enabled", false);
   achievements_hardcore_mode = si.GetBoolValue("Cheevos", "ChallengeMode", false);
@@ -648,7 +651,13 @@ void Settings::Save(SettingsInterface& si, bool ignore_base) const
   else
     si.DeleteValue("MemoryCards", "Card2Path");
 
+  si.SetBoolValue("MemoryCards", "Card1PocketStation", memory_card_pocketstation[0]);
+  si.SetBoolValue("MemoryCards", "Card2PocketStation", memory_card_pocketstation[1]);
   si.SetBoolValue("MemoryCards", "UsePlaylistTitle", memory_card_use_playlist_title);
+  if (!pocketstation_bios_path.empty())
+    si.SetStringValue("MemoryCards", "PocketStationBiosPath", pocketstation_bios_path.c_str());
+  else
+    si.DeleteValue("MemoryCards", "PocketStationBiosPath");
 
   si.SetStringValue("ControllerPorts", "MultitapMode", GetMultitapModeName(multitap_mode));
 
@@ -814,6 +823,44 @@ void Settings::FixIncompatibleSettings(bool display_osd_messages)
     g_settings.runahead_frames = 0;
   }
 #endif
+
+  // Cards behind a multitap are not told about /SEL, which a PocketStation needs.
+  for (u32 i = 0; i < NUM_CONTROLLER_AND_CARD_PORTS; i++)
+  {
+    if (!g_settings.memory_card_pocketstation[i] ||
+        !g_settings.IsMultitapPortEnabled(std::get<0>(Controller::ConvertPadToPortAndSlot(i))))
+    {
+      continue;
+    }
+
+    if (display_osd_messages)
+    {
+      Host::AddKeyedOSDMessage(
+        "pocketstation_multitap",
+        TRANSLATE_STR("OSDMessage", "PocketStation has been disabled, because it cannot be used with a multitap."),
+        Host::OSD_WARNING_DURATION);
+    }
+
+    g_settings.memory_card_pocketstation[i] = false;
+  }
+
+  // A PocketStation is not part of memory states, so it cannot go back in time with the console.
+  if ((g_settings.IsRunaheadEnabled() || g_settings.rewind_enable) &&
+      std::any_of(g_settings.memory_card_pocketstation.begin(), g_settings.memory_card_pocketstation.end(),
+                  [](bool enabled) { return enabled; }))
+  {
+    if (display_osd_messages)
+    {
+      Host::AddKeyedOSDMessage(
+        "pocketstation_rewind_disabled",
+        TRANSLATE_STR("OSDMessage",
+                      "Rewind and runahead have been disabled, because they cannot be used with a PocketStation."),
+        Host::OSD_WARNING_DURATION);
+    }
+
+    g_settings.runahead_frames = 0;
+    g_settings.rewind_enable = false;
+  }
 
   if (g_settings.IsRunaheadEnabled() && g_settings.rewind_enable)
   {

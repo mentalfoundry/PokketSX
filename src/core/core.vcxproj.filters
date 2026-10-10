@@ -37,6 +37,7 @@
     <ClCompile Include="psf_loader.cpp" />
     <ClCompile Include="guncon.cpp" />
     <ClCompile Include="playstation_mouse.cpp" />
+    <ClCompile Include="pocketstation.cpp" />
     <ClCompile Include="negcon.cpp" />
     <ClCompile Include="host_interface_progress_callback.cpp" />
     <ClCompile Include="cpu_pgxp.cpp" />
@@ -105,6 +106,7 @@
     <ClInclude Include="psf_loader.h" />
     <ClInclude Include="guncon.h" />
     <ClInclude Include="playstation_mouse.h" />
+    <ClInclude Include="pocketstation.h" />
     <ClInclude Include="negcon.h" />
     <ClInclude Include="host_interface_progress_callback.h" />
     <ClInclude Include="gte_types.h" />

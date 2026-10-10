@@ -96,6 +96,8 @@ add_library(core
   pine_server.h
   playstation_mouse.cpp
   playstation_mouse.h
+  pocketstation.cpp
+  pocketstation.h
   psf_loader.cpp
   psf_loader.h
   save_state_version.h

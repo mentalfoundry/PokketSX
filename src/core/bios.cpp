@@ -40,6 +40,9 @@ static constexpr ImageInfo::Hash MakeHashFromString(const char str[])
   return h;
 }
 
+// Known-good PocketStation BIOS. It has no ImageInfo, since it has no region or fast boot patch.
+static constexpr ImageInfo::Hash s_pocketstation_bios_hash = MakeHashFromString("d3dc54ef4d2c6a99650cb97786e461ae");
+
 // clang-format off
 // Launch console BIOS is de-prioritized due to bugs.
 // Late PAL is de-prioritized due to additional regional checks that break import booting without fast boot.
@@ -378,7 +381,9 @@ std::optional<BIOS::Image> BIOS::FindBIOSImageInDirectory(ConsoleRegion region, 
   {
     if (fd.Size != BIOS_SIZE && fd.Size != BIOS_SIZE_PS2 && fd.Size != BIOS_SIZE_PS3)
     {
-      WARNING_LOG("Skipping '{}': incorrect size", fd.FileName.c_str());
+      // PocketStation images share the directory.
+      if (fd.Size != POCKETSTATION_BIOS_SIZE)
+        WARNING_LOG("Skipping '{}': incorrect size", fd.FileName.c_str());
       continue;
     }
 
@@ -443,6 +448,30 @@ std::vector<std::pair<std::string, const BIOS::ImageInfo*>> BIOS::FindBIOSImages
       continue;
 
     results.emplace_back(std::move(fd.FileName), found_image->info);
+  }
+
+  return results;
+}
+
+std::vector<std::pair<std::string, bool>> BIOS::FindPocketStationBIOSImagesInDirectory(const char* directory)
+{
+  std::vector<std::pair<std::string, bool>> results;
+
+  FileSystem::FindResultsArray files;
+  FileSystem::FindFiles(directory, "*",
+                        FILESYSTEM_FIND_FILES | FILESYSTEM_FIND_HIDDEN_FILES | FILESYSTEM_FIND_RELATIVE_PATHS, &files);
+
+  for (FILESYSTEM_FIND_DATA& fd : files)
+  {
+    if (fd.Size != POCKETSTATION_BIOS_SIZE)
+      continue;
+
+    const std::string full_path(Path::Combine(directory, fd.FileName));
+    const std::optional<DynamicHeapArray<u8>> data = FileSystem::ReadBinaryFile(full_path.c_str(), nullptr);
+    if (!data.has_value() || data->size() != POCKETSTATION_BIOS_SIZE)
+      continue;
+
+    results.emplace_back(std::move(fd.FileName), MD5Digest::HashData(data->cspan()) == s_pocketstation_bios_hash);
   }
 
   return results;

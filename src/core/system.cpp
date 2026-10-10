@@ -186,6 +186,7 @@ static void UpdateControllers();
 static void ResetControllers();
 static void UpdatePerGameMemoryCards();
 static std::unique_ptr<MemoryCard> GetMemoryCardForSlot(u32 slot, MemoryCardType type);
+static void AttachPocketStationToCard(u32 slot, MemoryCard* card);
 static void UpdateMultitaps();
 
 /// Returns the maximum size of a save state, considering the current configuration.
@@ -3735,6 +3736,8 @@ void System::UpdateMemoryCardTypes()
 
     const MemoryCardType type = g_settings.memory_card_types[i];
     std::unique_ptr<MemoryCard> card = GetMemoryCardForSlot(i, type);
+    if (card && g_settings.memory_card_pocketstation[i])
+      AttachPocketStationToCard(i, card.get());
     if (card)
     {
       if (const std::string& filename = card->GetFilename(); !filename.empty())
@@ -3756,6 +3759,8 @@ void System::UpdatePerGameMemoryCards()
     Pad::SetMemoryCard(i, nullptr);
 
     std::unique_ptr<MemoryCard> card = GetMemoryCardForSlot(i, type);
+    if (card && g_settings.memory_card_pocketstation[i])
+      AttachPocketStationToCard(i, card.get());
     if (card)
     {
       if (const std::string& filename = card->GetFilename(); !filename.empty())
@@ -3764,6 +3769,75 @@ void System::UpdatePerGameMemoryCards()
       Pad::SetMemoryCard(i, std::move(card));
     }
   }
+}
+
+void System::AttachPocketStationToCard(u32 slot, MemoryCard* card)
+{
+  const std::string message_key = fmt::format("PocketStation{}", slot);
+
+  // Empty auto-detects: the known-good dump if present, otherwise any image of the right size.
+  std::string bios_path;
+  if (g_settings.pocketstation_bios_path.empty())
+  {
+    const std::vector<std::pair<std::string, bool>> images =
+      BIOS::FindPocketStationBIOSImagesInDirectory(EmuFolders::Bios.c_str());
+
+    const std::pair<std::string, bool>* selected = nullptr;
+    for (const std::pair<std::string, bool>& image : images)
+    {
+      if (!selected || image.second)
+        selected = &image;
+      if (image.second)
+        break;
+    }
+
+    if (selected)
+    {
+      if (!selected->second)
+        WARNING_LOG("Using unknown PocketStation BIOS '{}'. This may not work.", selected->first);
+
+      bios_path = Path::Combine(EmuFolders::Bios, selected->first);
+    }
+  }
+  else
+  {
+    bios_path = Path::Combine(EmuFolders::Bios, g_settings.pocketstation_bios_path);
+  }
+
+  if (bios_path.empty())
+  {
+    Host::AddIconOSDMessage(message_key, ICON_FA_SD_CARD,
+                            fmt::format(TRANSLATE_FS("System", "Memory card slot {}: PocketStation is enabled, but no "
+                                                               "BIOS image was found. Using an ordinary card."),
+                                        slot + 1u),
+                            Host::OSD_ERROR_DURATION);
+    return;
+  }
+
+  Error error;
+  const std::optional<DynamicHeapArray<u8>> bios = FileSystem::ReadBinaryFile(bios_path.c_str(), &error);
+  if (!bios.has_value())
+  {
+    ERROR_LOG("Cannot read PocketStation BIOS '{}': {}", bios_path, error.GetDescription());
+    Host::AddIconOSDMessage(message_key, ICON_FA_SD_CARD,
+                            fmt::format(TRANSLATE_FS("System", "Memory card slot {}: Cannot read PocketStation BIOS {}: {}"),
+                                        slot + 1u, Path::GetFileName(bios_path), error.GetDescription()),
+                            Host::OSD_ERROR_DURATION);
+    return;
+  }
+
+  if (!card->AttachPocketStation(slot, bios->cspan(), &error))
+  {
+    ERROR_LOG("Cannot start PocketStation in slot {}: {}", slot + 1, error.GetDescription());
+    Host::AddIconOSDMessage(message_key, ICON_FA_SD_CARD,
+                            fmt::format(TRANSLATE_FS("System", "Memory card slot {}: Failed to start PocketStation: {}"),
+                                        slot + 1u, error.GetDescription()),
+                            Host::OSD_ERROR_DURATION);
+    return;
+  }
+
+  Host::RemoveKeyedOSDMessage(message_key);
+  INFO_LOG("Memory Card Slot {}: PocketStation started from {}", slot + 1, bios_path);
 }
 
 bool System::HasMemoryCard(u32 slot)
@@ -4364,6 +4438,8 @@ void System::CheckForSettingsChanges(const Settings& old_settings)
 
     if (g_settings.memory_card_types != old_settings.memory_card_types ||
         g_settings.memory_card_paths != old_settings.memory_card_paths ||
+        g_settings.memory_card_pocketstation != old_settings.memory_card_pocketstation ||
+        g_settings.pocketstation_bios_path != old_settings.pocketstation_bios_path ||
         (g_settings.memory_card_use_playlist_title != old_settings.memory_card_use_playlist_title))
     {
       UpdateMemoryCardTypes();
@@ -4893,6 +4969,13 @@ void System::ShutdownSystem(bool save_resume_state)
 {
   if (!IsValid())
     return;
+
+  // Let a PocketStation app save its progress before the resume state captures the card.
+  for (u32 i = 0; i < NUM_CONTROLLER_AND_CARD_PORTS; i++)
+  {
+    if (MemoryCard* const card = Pad::GetMemoryCard(i))
+      card->PrepareForShutdown();
+  }
 
   if (save_resume_state)
   {

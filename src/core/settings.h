@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
@@ -269,6 +270,12 @@ struct Settings
   std::array<MemoryCardType, NUM_CONTROLLER_AND_CARD_PORTS> memory_card_types{};
   std::array<std::string, NUM_CONTROLLER_AND_CARD_PORTS> memory_card_paths{};
   bool memory_card_use_playlist_title = true;
+
+  // Independent of the card type, which only selects where the card image is stored.
+  std::array<bool, NUM_CONTROLLER_AND_CARD_PORTS> memory_card_pocketstation{};
+
+  // Name of the PocketStation BIOS image within the BIOS directory. Empty auto-detects.
+  std::string pocketstation_bios_path;
 
   MultitapMode multitap_mode = DEFAULT_MULTITAP_MODE;
 

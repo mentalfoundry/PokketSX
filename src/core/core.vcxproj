@@ -76,6 +76,7 @@
     <ClCompile Include="cpu_pgxp.cpp" />
     <ClCompile Include="pine_server.cpp" />
     <ClCompile Include="playstation_mouse.cpp" />
+    <ClCompile Include="pocketstation.cpp" />
     <ClCompile Include="psf_loader.cpp" />
     <ClCompile Include="settings.cpp" />
     <ClCompile Include="sio.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="cpu_pgxp.h" />
     <ClInclude Include="pine_server.h" />
     <ClInclude Include="playstation_mouse.h" />
+    <ClInclude Include="pocketstation.h" />
     <ClInclude Include="psf_loader.h" />
     <ClInclude Include="save_state_version.h" />
     <ClInclude Include="settings.h" />
