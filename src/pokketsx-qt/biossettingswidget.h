@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2022 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 #include "core/types.h"
@@ -26,6 +27,8 @@ public:
                                         std::vector<std::pair<std::string, const BIOS::ImageInfo*>>& images,
                                         bool per_game);
   static void setDropDownValue(QComboBox* cb, const std::optional<std::string>& name, bool per_game);
+  static void populatePocketStationDropDown(QComboBox* cb, const std::vector<std::pair<std::string, bool>>& images,
+                                            bool per_game);
 
 private Q_SLOTS:
   void refreshList();

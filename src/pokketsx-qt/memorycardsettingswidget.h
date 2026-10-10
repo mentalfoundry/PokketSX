@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2022 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 #include "core/types.h"
@@ -12,6 +13,7 @@
 #include <array>
 #include <vector>
 
+class QCheckBox;
 class SettingsWindow;
 
 class MemoryCardSettingsWidget : public QWidget
@@ -31,6 +33,7 @@ private:
     QVBoxLayout* layout;
     QComboBox* memory_card_type;
     QLineEdit* memory_card_path;
+    QCheckBox* pocketstation;
   };
 
   void createUi(SettingsWindow* dialog);

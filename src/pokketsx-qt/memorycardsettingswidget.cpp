@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2022 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "memorycardsettingswidget.h"
 
@@ -116,7 +117,19 @@ void MemoryCardSettingsWidget::createPortSettingsUi(SettingsWindow* dialog, int 
   SettingWidgetBinder::BindWidgetToEnumSetting(m_dialog->getSettingsInterface(), ui->memory_card_type, "MemoryCards",
                                                fmt::format("Card{}Type", index + 1), &Settings::ParseMemoryCardTypeName,
                                                &Settings::GetMemoryCardTypeName, default_value);
-  ui->layout->addWidget(new QLabel(tr("Memory Card Type:"), ui->container));
+  // Same row as the label, so that the group box does not get taller.
+  QHBoxLayout* const type_layout = new QHBoxLayout();
+  type_layout->addWidget(new QLabel(tr("Memory Card Type:"), ui->container));
+  type_layout->addStretch(1);
+  ui->pocketstation = new QCheckBox(tr("Use PocketStation"), ui->container);
+  SettingWidgetBinder::BindWidgetToBoolSetting(m_dialog->getSettingsInterface(), ui->pocketstation, "MemoryCards",
+                                               fmt::format("Card{}PocketStation", index + 1), false);
+  dialog->registerWidgetHelp(ui->pocketstation, tr("Use PocketStation"), tr("Unchecked"),
+                             tr("Emulates a PocketStation in this slot, using the memory card image as its storage. "
+                                "Requires a PocketStation BIOS. Cannot be used with a multitap on this port, rewind or "
+                                "runahead."));
+  type_layout->addWidget(ui->pocketstation);
+  ui->layout->addLayout(type_layout);
   ui->layout->addWidget(ui->memory_card_type);
 
   QHBoxLayout* memory_card_layout = new QHBoxLayout();
