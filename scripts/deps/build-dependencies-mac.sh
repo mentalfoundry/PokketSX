@@ -379,7 +379,7 @@ echo "Building discord-rpc..."
 rm -fr "discord-rpc-$DISCORD_RPC"
 tar xf "discord-rpc-$DISCORD_RPC.tar.gz"
 cd "discord-rpc-$DISCORD_RPC"
-cmake "${CMAKE_COMMON[@]}" "$CMAKE_ARCH_UNIVERSAL" -DBUILD_SHARED_LIBS=ON -B build
+cmake "${CMAKE_COMMON[@]}" "$CMAKE_ARCH_UNIVERSAL" -DBUILD_SHARED_LIBS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -B build
 cmake --build build --parallel
 cmake --install build
 cd ..

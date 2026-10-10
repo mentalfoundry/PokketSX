@@ -286,7 +286,7 @@ echo Building discord-rpc...
 rmdir /S /Q "discord-rpc-%DISCORD_RPC%"
 %SEVENZIP% x "discord-rpc-%DISCORD_RPC%.zip" || goto error
 cd "discord-rpc-%DISCORD_RPC%" || goto error
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%INSTALLDIR%" -DCMAKE_INSTALL_PREFIX="%INSTALLDIR%" -DBUILD_SHARED_LIBS=ON -B build -G Ninja
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%INSTALLDIR%" -DCMAKE_INSTALL_PREFIX="%INSTALLDIR%" -DBUILD_SHARED_LIBS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -B build -G Ninja
 cmake --build build --parallel || goto error
 ninja -C build install || goto error
 cd .. || goto error

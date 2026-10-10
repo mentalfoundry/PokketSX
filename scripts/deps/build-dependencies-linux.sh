@@ -395,7 +395,7 @@ echo "Building discord-rpc..."
 rm -fr "discord-rpc-$DISCORD_RPC"
 tar xf "discord-rpc-$DISCORD_RPC.tar.gz"
 cd "discord-rpc-$DISCORD_RPC"
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$INSTALLDIR" -DCMAKE_INSTALL_PREFIX="$INSTALLDIR" -DBUILD_SHARED_LIBS=ON -B build -G Ninja
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$INSTALLDIR" -DCMAKE_INSTALL_PREFIX="$INSTALLDIR" -DBUILD_SHARED_LIBS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -B build -G Ninja
 cmake --build build --parallel
 ninja -C build install
 cd ..
