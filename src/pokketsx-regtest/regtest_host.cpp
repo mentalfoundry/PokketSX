@@ -514,6 +514,7 @@ void RegTestHost::PrintCommandLineHelp(const char* progname)
   std::fprintf(stderr, "  -dumpinterval: Dumps every N frames.\n");
   std::fprintf(stderr, "  -frames: Sets the number of frames to execute.\n");
   std::fprintf(stderr, "  -log <level>: Sets the log level. Defaults to verbose.\n");
+  std::fprintf(stderr, "  -pocketstation: Puts a PocketStation in memory card slot 1.\n");
   std::fprintf(stderr, "  -renderer <renderer>: Sets the graphics renderer. Default to software.\n");
   std::fprintf(stderr, "  --: Signals that no more arguments will follow and the remaining\n"
                        "    parameters make up the filename. Use when the filename contains\n"
@@ -593,6 +594,12 @@ bool RegTestHost::ParseCommandLineParameters(int argc, char* argv[], std::option
 
         Log::SetLogLevel(level.value());
         s_base_settings_interface->SetStringValue("Logging", "LogLevel", Settings::GetLogLevelName(level.value()));
+        continue;
+      }
+      else if (CHECK_ARG("-pocketstation"))
+      {
+        // Card 1 becomes a PocketStation. The BIOS is auto-detected from the BIOS directory.
+        s_base_settings_interface->SetBoolValue("MemoryCards", "Card1PocketStation", true);
         continue;
       }
       else if (CHECK_ARG_PARAM("-console"))
