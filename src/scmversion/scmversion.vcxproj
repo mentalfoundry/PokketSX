@@ -33,8 +33,11 @@
     <CustomBuildStep>
       <Message>Checking whether scmversion.cpp needs updating...</Message>
     </CustomBuildStep>
+    <!-- A file that is never created, so the step runs on every build. With scmversion.cpp as the
+         output it was skipped once that file existed, leaving a stale version after commits and tags.
+         gen_scmversion.bat only rewrites scmversion.cpp when the version has changed. -->
     <CustomBuildStep>
-      <Outputs>$(ProjectDir)scmversion.cpp</Outputs>
+      <Outputs>$(IntDir)scmversion.always-run</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
 
