@@ -15,7 +15,7 @@ We are already a niche group of hobbyists - be excellent to each other.
 ---
 
 ## Project Status
-The Pocketstation to PS1 communication code is functional. Looking to get a release build up soon.
+The Pocketstation to PS1 communication code is functional and should be broadly compatible with PS1 titles that support it. Raise an [Issue](https://github.com/mentalfoundry/PokketSX/issues/new) if you know of a title that does not work - I would be interested in learning about it. 
 
 ---
 
