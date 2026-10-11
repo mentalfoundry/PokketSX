@@ -26,8 +26,7 @@ AboutDialog::AboutDialog(QWidget* parent /* = nullptr */) : QDialog(parent)
   setFixedSize(geometry().width(), geometry().height());
 
   m_ui.scmversion->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  m_ui.scmversion->setText(
-    tr("%1 (%2)").arg(QLatin1StringView(g_scm_tag_str)).arg(QLatin1StringView(g_scm_branch_str)));
+  m_ui.scmversion->setText(QLatin1StringView(g_scm_tag_str));
 
   m_ui.description->setTextInteractionFlags(Qt::TextBrowserInteraction);
   m_ui.description->setOpenExternalLinks(true);
@@ -37,15 +36,16 @@ AboutDialog::AboutDialog(QWidget* parent /* = nullptr */) : QDialog(parent)
 p, li { white-space: pre-wrap; }
 </style></head><body style=" font-size:10pt; font-weight:400; font-style:normal;">
 <p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">%1</p>
-<p style=" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">%2</span>:</p>
-<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  Connor McLaughlin &lt;stenzek@gmail.com&gt;</p>
+<p style=" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">PokketSX</span>:</p>
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  mentalfoundry</p>
+<p style=" margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-weight:600;">DuckStation</span>:</p>
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  Stenzek</p>
 <p style=" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">  and other <a href="https://github.com/mentalfoundry/PokketSX/blob/main/CONTRIBUTORS.md">contributors</a></p>
-<p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><a href="https://github.com/mentalfoundry/PokketSX/blob/main/LICENSE"><span style=" text-decoration: underline; color:#0057ae;">%3</span></a> | <a href="https://github.com/mentalfoundry/PokketSX"><span style=" text-decoration: underline; color:#0057ae;">GitHub</span></a></p></body></html>
+<p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><a href="https://github.com/mentalfoundry/PokketSX/blob/main/LICENSE"><span style=" text-decoration: underline; color:#0057ae;">%2</span></a> | <a href="https://github.com/mentalfoundry/PokketSX"><span style=" text-decoration: underline; color:#0057ae;">GitHub</span></a></p></body></html>
 )")
                               .arg(tr("PokketSX is a free and open-source simulator/emulator of the Sony "
                                       "PlayStation<span style=\"vertical-align:super;\">TM</span> console, based on "
                                       "DuckStation."))
-                              .arg(tr("Authors"))
                               .arg(tr("License")));
 }
 

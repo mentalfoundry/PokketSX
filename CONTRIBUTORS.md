@@ -1,6 +1,6 @@
-# DuckStation Contributors List
+# Original DuckStation Contributors List
 
-The following people have contributed to the project in some way, and are credited here.
+The following people contributed to DuckStation, which PokketSX is based on, and are credited here.
 
 ## Code Contributions
 
