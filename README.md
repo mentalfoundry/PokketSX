@@ -19,7 +19,9 @@ The Pocketstation to PS1 communication code is functional. Looking to get a rele
 
 ---
 
-## Legacy README
+## How to use
+There is an additional setting on the "BIOS" tab that takes a PockeStation retail BIOS. On the "Memory Cards" tab there is an additional checkbox for each memory card which lets you toggle if a PocketStation should replace the normal memory card.
+
 The README that PokketSX inherited from DuckStation, with its features, system requirements, build instructions and default bindings, is kept here [docs/legacy-readme.md](docs/legacy-readme.md) for your easy reference in case you need it. Note it looks pretty similar to the current DuckStation readme but will likely contain subtle differences so read it carefully!
 
 ---
