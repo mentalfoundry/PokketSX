@@ -276,6 +276,10 @@ static bool s_skip_presenting_duplicate_frames = false;
 static u32 s_skipped_frame_count = 0;
 static u32 s_last_presented_internal_frame_number = 0;
 
+#ifdef _WIN32
+static bool s_com_initialized = false;
+#endif
+
 static float s_throttle_frequency = 0.0f;
 static float s_target_speed = 0.0f;
 
@@ -480,11 +484,21 @@ bool System::Internal::CPUThreadInitialize(Error* error)
   // On Win32, we have a bunch of things which use COM (e.g. SDL, Cubeb, etc).
   // We need to initialize COM first, before anything else does, because otherwise they might
   // initialize it in single-threaded/apartment mode, which can't be changed to multithreaded.
+  // When PokketSX is loaded as a plugin, such as a libretro core, the host may have initialized COM on this thread
+  // already in apartment mode. That can't be changed, so carry on with what the host chose.
   HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-  if (FAILED(hr))
+  if (hr == RPC_E_CHANGED_MODE)
+  {
+    WARNING_LOG("COM is already initialized on this thread in apartment mode.");
+  }
+  else if (FAILED(hr))
   {
     Error::SetHResult(error, "CoInitializeEx() failed: ", hr);
     return false;
+  }
+  else
+  {
+    s_com_initialized = true;
   }
 #endif
 
@@ -524,7 +538,11 @@ void System::Internal::CPUThreadShutdown()
   InputManager::CloseSources();
 
 #ifdef _WIN32
-  CoUninitialize();
+  if (s_com_initialized)
+  {
+    CoUninitialize();
+    s_com_initialized = false;
+  }
 #endif
 }
 
