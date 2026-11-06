@@ -208,6 +208,7 @@ bool CPU::CodeCache::ProcessStartup(Error* error)
 
 void CPU::CodeCache::ProcessShutdown()
 {
+  PageFaultHandler::Remove();
   DeallocateLUTs();
 
 #ifndef USE_CODE_BUFFER_SECTION

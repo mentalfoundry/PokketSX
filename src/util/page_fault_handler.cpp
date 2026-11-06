@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "page_fault_handler.h"
 
@@ -85,6 +86,7 @@ static bool s_installed = false;
 
 namespace PageFaultHandler {
 static LONG ExceptionHandler(PEXCEPTION_POINTERS exi);
+static PVOID s_handler_handle = nullptr;
 }
 
 LONG PageFaultHandler::ExceptionHandler(PEXCEPTION_POINTERS exi)
@@ -132,14 +134,30 @@ bool PageFaultHandler::Install(Error* error)
     return false;
   }
 
+  s_handler_handle = handle;
   s_installed = true;
   return true;
+}
+
+void PageFaultHandler::Remove()
+{
+  std::unique_lock lock(s_exception_handler_mutex);
+  if (!s_installed)
+    return;
+
+  RemoveVectoredExceptionHandler(s_handler_handle);
+  s_handler_handle = nullptr;
+  s_installed = false;
 }
 
 #else
 
 namespace PageFaultHandler {
 static void SignalHandler(int sig, siginfo_t* info, void* ctx);
+static struct sigaction s_old_sigsegv_action;
+#if defined(__APPLE__) || defined(__aarch64__)
+static struct sigaction s_old_sigbus_action;
+#endif
 } // namespace PageFaultHandler
 
 void PageFaultHandler::SignalHandler(int sig, siginfo_t* info, void* ctx)
@@ -235,14 +253,14 @@ bool PageFaultHandler::Install(Error* error)
   // Don't block the signal from executing recursively, we want to fire the original handler.
   sa.sa_flags |= SA_NODEFER;
 #endif
-  if (sigaction(SIGSEGV, &sa, nullptr) != 0)
+  if (sigaction(SIGSEGV, &sa, &s_old_sigsegv_action) != 0)
   {
     Error::SetErrno(error, "sigaction() for SIGSEGV failed: ", errno);
     return false;
   }
 #if defined(__APPLE__) || defined(__aarch64__)
   // MacOS uses SIGBUS for memory permission violations
-  if (sigaction(SIGBUS, &sa, nullptr) != 0)
+  if (sigaction(SIGBUS, &sa, &s_old_sigbus_action) != 0)
   {
     Error::SetErrno(error, "sigaction() for SIGBUS failed: ", errno);
     return false;
@@ -254,6 +272,20 @@ bool PageFaultHandler::Install(Error* error)
 
   s_installed = true;
   return true;
+}
+
+void PageFaultHandler::Remove()
+{
+  std::unique_lock lock(s_exception_handler_mutex);
+  if (!s_installed)
+    return;
+
+  sigaction(SIGSEGV, &s_old_sigsegv_action, nullptr);
+#if defined(__APPLE__) || defined(__aarch64__)
+  sigaction(SIGBUS, &s_old_sigbus_action, nullptr);
+#endif
+
+  s_installed = false;
 }
 
 #endif
