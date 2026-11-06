@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "achievements.h"
 #include "cpu_code_cache.h"
@@ -42,6 +43,9 @@ void Settings::SetDefaultHotkeyConfig(SettingsInterface& si)
   si.SetStringValue("Hotkeys", "SaveSelectedSaveState", "Keyboard/F2");
   si.SetStringValue("Hotkeys", "SelectPreviousSaveStateSlot", "Keyboard/F3");
   si.SetStringValue("Hotkeys", "SelectNextSaveStateSlot", "Keyboard/F4");
+
+  // Held to rewind, when rewind is enabled. R is free in the default keyboard controller mapping.
+  si.SetStringValue("Hotkeys", "Rewind", "Keyboard/R");
 #endif
 }
 
