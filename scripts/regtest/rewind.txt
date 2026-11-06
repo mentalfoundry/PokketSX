@@ -1,0 +1,15 @@
+# This script holds the Rewind hotkey at frame 1500 for 100 updates. Then the game continues.
+# You can use this script with all games.
+#
+# To do the test:
+#   1. Run the regtest with this script. Rewind saves a state each 0.5 seconds:
+#        pokketsx-regtest -rewind 0.5 -input rewind.txt -frames 1801 -dumpdir <dir> -dumpinterval 10 -- <game>
+#   2. Run the regtest again without this script. Use a different dump directory:
+#        pokketsx-regtest -rewind 0.5 -frames 1801 -dumpdir <other dir> -dumpinterval 10 -- <game>
+#   3. Compare the frame dumps that have the same name in the two dump directories. They must be the same.
+#
+# Rewind loads an earlier state approximately each 30 updates. Because of this, the game goes back to
+# approximately frame 1400. When the game shows a frame again, the regtest writes the dump of that frame again.
+# If two dumps are different, rewind did not restore the console correctly.
+
+1500 rewind 100

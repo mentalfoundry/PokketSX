@@ -65,6 +65,7 @@ enum class ScriptAction : u8
   Press,
   SaveState,
   ExpectPocketStationComm,
+  Rewind,
 };
 struct ScriptEvent
 {
@@ -79,6 +80,12 @@ static std::vector<ScriptEvent> s_script;
 static std::vector<std::pair<u32, u32>> s_releases; // frame, bind index
 static constexpr u32 DEFAULT_HOLD_FRAMES = 3;
 static u32 s_expect_failures = 0;
+
+// Rewinding runs no frames, so a scripted rewind is held for a number of frontend updates instead, each of which
+// stands for one frame of real time.
+static const HotkeyInfo* s_rewind_hotkey = nullptr;
+static u32 s_pending_rewind_updates = 0;
+static u32 s_rewind_updates_remaining = 0;
 
 bool RegTestHost::SetFolders()
 {
@@ -333,9 +340,31 @@ void Host::OnMediaCaptureStopped()
 
 void Host::PumpMessagesOnCPUThread()
 {
+  if (s_rewind_updates_remaining > 0)
+  {
+    if (--s_rewind_updates_remaining == 0)
+    {
+      INFO_LOG("Releasing rewind, at frame {}.", System::GetFrameNumber());
+      s_rewind_hotkey->handler(0);
+    }
+
+    return;
+  }
+
   s_frames_remaining--;
   if (s_frames_remaining == 0)
+  {
     System::ShutdownSystem(false);
+    return;
+  }
+
+  // Through the hotkey, as a frontend would.
+  if (s_pending_rewind_updates > 0)
+  {
+    s_rewind_updates_remaining = s_pending_rewind_updates;
+    s_pending_rewind_updates = 0;
+    s_rewind_hotkey->handler(1);
+  }
 }
 
 void Host::RunOnCPUThread(std::function<void()> function, bool block /* = false */)
@@ -410,6 +439,10 @@ void Host::FrameDone()
       if (ev.frame != frame)
         continue;
 
+      // Rewinding goes back to before this frame, so a rewind would repeat forever if it fired again.
+      if (ev.action == ScriptAction::Rewind && ev.done)
+        continue;
+
       ev.done = true;
       switch (ev.action)
       {
@@ -449,6 +482,13 @@ void Host::FrameDone()
           {
             INFO_LOG("Frame {}: expect passed: the PocketStation in slot 1 has communication enabled.", frame);
           }
+        }
+        break;
+
+        case ScriptAction::Rewind:
+        {
+          INFO_LOG("Frame {}: rewind for {} updates", frame, ev.hold_frames);
+          s_pending_rewind_updates = ev.hold_frames;
         }
         break;
       }
@@ -611,7 +651,12 @@ void RegTestHost::PrintCommandLineHelp(const char* progname)
                        "    Button names are the analog controller binding names, e.g. Cross, Circle, Up, Start.\n"
                        "    \"<frame> expect pocketstation-comm\" fails the run unless the PocketStation in slot 1\n"
                        "    has communication enabled at that frame.\n"
+                       "    \"<frame> rewind <updates>\" holds the Rewind hotkey for the given number of updates.\n"
+                       "    One update is equal to one frame of real time. This action occurs one time only,\n"
+                       "    also when rewind goes back to an earlier frame. Use this action with -rewind.\n"
                        "    Empty lines and lines starting with # are ignored.\n");
+  std::fprintf(stderr, "  -rewind <seconds>: Enables rewind. Rewind saves a state each <seconds>.\n"
+                       "    Use 0 to save a state each frame.\n");
   std::fprintf(stderr, "  -memcard <path>: Uses the given file as the memory card in slot 1.\n");
   std::fprintf(stderr, "  -loadstate <path>: Loads the given save state after booting.\n");
   std::fprintf(stderr, "  -pocketstation: Puts a PocketStation in memory card slot 1.\n");
@@ -665,6 +710,21 @@ bool RegTestHost::LoadInputScript(const char* path)
       }
 
       ev.action = ScriptAction::ExpectPocketStationComm;
+      s_script.push_back(std::move(ev));
+      continue;
+    }
+
+    if (fields[1] == "rewind")
+    {
+      const std::optional<u32> updates = (fields.size() == 3) ? StringUtil::FromChars<u32>(fields[2]) : std::nullopt;
+      if (!updates.has_value() || updates.value() == 0)
+      {
+        ERROR_LOG("Input script line {}: expected '<frame> rewind <updates>'.", line_number);
+        return false;
+      }
+
+      ev.action = ScriptAction::Rewind;
+      ev.hold_frames = updates.value();
       s_script.push_back(std::move(ev));
       continue;
     }
@@ -807,6 +867,19 @@ bool RegTestHost::ParseCommandLineParameters(int argc, char* argv[], std::option
       else if (CHECK_ARG_PARAM("-loadstate"))
       {
         AutoBoot(autoboot)->save_state = argv[++i];
+        continue;
+      }
+      else if (CHECK_ARG_PARAM("-rewind"))
+      {
+        const std::optional<float> seconds = StringUtil::FromChars<float>(argv[++i]);
+        if (!seconds.has_value() || seconds.value() < 0.0f)
+        {
+          ERROR_LOG("Invalid rewind save interval.");
+          return false;
+        }
+
+        s_base_settings_interface->SetBoolValue("Main", "RewindEnable", true);
+        s_base_settings_interface->SetFloatValue("Main", "RewindFrequency", seconds.value());
         continue;
       }
       else if (CHECK_ARG("-pocketstation"))
@@ -965,6 +1038,17 @@ int main(int argc, char* argv[])
 
   if (!RegTestHost::SetNewDataRoot(autoboot->filename))
     return EXIT_FAILURE;
+
+  for (const HotkeyInfo* hotkey : InputManager::GetHotkeyList())
+  {
+    if (std::strcmp(hotkey->name, "Rewind") == 0)
+      s_rewind_hotkey = hotkey;
+  }
+  if (!s_rewind_hotkey)
+  {
+    ERROR_LOG("The Rewind hotkey does not exist.");
+    return EXIT_FAILURE;
+  }
 
   {
     Error startup_error;
