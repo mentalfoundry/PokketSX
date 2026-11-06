@@ -90,6 +90,14 @@ Log_SetChannel(System);
 #include <objbase.h>
 #endif
 
+#ifdef CPU_ARCH_X64
+#ifdef _MSC_VER
+#include <intrin.h>
+#else
+#include <cpuid.h>
+#endif
+#endif
+
 #ifndef __ANDROID__
 // Discord Rich Presence is off until PokketSX has its own Discord application.
 // To enable it, set DISCORD_APP_ID in InitializeDiscordPresence() and define this.
@@ -357,13 +365,29 @@ static TinyString GetTimestampStringForFileName()
   return TinyString::from_format("{:%Y-%m-%d-%H-%M-%S}", fmt::localtime(std::time(nullptr)));
 }
 
+#ifdef CPU_ARCH_X64
+static bool CPUHasSSE41()
+{
+  // CPUID leaf 1, ECX bit 19. Asked directly rather than through cpuinfo_has_x86_sse4_1(), which reads a variable
+  // exported by cpuinfo.dll, and the libretro core can only delay-load DLLs that it calls functions from.
+#ifdef _MSC_VER
+  int regs[4];
+  __cpuid(regs, 1);
+  return (static_cast<u32>(regs[2]) & (1u << 19)) != 0;
+#else
+  unsigned int eax, ebx, ecx, edx;
+  return __get_cpuid(1, &eax, &ebx, &ecx, &edx) && (ecx & (1u << 19)) != 0;
+#endif
+}
+#endif
+
 bool System::Internal::PerformEarlyHardwareChecks(Error* error)
 {
   // This shouldn't fail... if it does, just hope for the best.
   cpuinfo_initialize();
 
 #ifdef CPU_ARCH_X64
-  if (!cpuinfo_has_x86_sse4_1())
+  if (!CPUHasSSE41())
   {
     Error::SetStringFmt(error, "Your CPU does not support the SSE4.1 instruction set.\n"
                                "A CPU from 2008 or newer is required to run PokketSX.");
