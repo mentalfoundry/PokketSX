@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\dep\msvc\vsprops\Configurations.props" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="libretro_host.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\common.vcxproj">
+      <Project>{ee054e08-3799-4a59-a422-18259c105ffd}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\core\core.vcxproj">
+      <Project>{868b98c8-65a1-494b-8346-250a73a48c0a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\util\util.vcxproj">
+      <Project>{57f6206d-f264-4b07-baf8-11b9bbe1f455}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\..\dep\msvc\vsprops\DynamicLibrary.props" />
+  <!-- libretro frontends look for cores by this name. Each configuration gets its own folder, along with the
+       dependency DLLs that util.props copies. -->
+  <PropertyGroup>
+    <TargetName>pokketsx_libretro</TargetName>
+    <OutDir>$(SolutionDir)bin\$(Platform)\libretro-$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)dep\libretro-common\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <!-- Frontends do not search the core's folder for its dependencies, and may have loaded DLLs with the same names
+         themselves. These are loaded from the core's folder on first use instead, see libretro_host.cpp. -->
+    <Link>
+      <DelayLoadDLLs>cpuinfo.dll;freetype.dll;jpeg62.dll;libpng16.dll;libwebp.dll;lunasvg.dll;SDL2.dll;soundtouch.dll;zlib1.dll;zstd.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="..\core\core.props" />
+  <Import Project="..\..\dep\msvc\vsprops\Targets.props" />
+</Project>

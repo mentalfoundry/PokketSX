@@ -1,0 +1,44 @@
+display_name = "Sony - PlayStation (PokketSX)"
+authors = "mentalfoundry|stenzek"
+supported_extensions = "cue|bin|img|iso|chd|ecm|mds|pbp|m3u|exe|psexe|ps-exe|psf|minipsf"
+corename = "PokketSX"
+license = "GPLv3"
+permissions = "dynarec"
+display_version = "Rolling"
+categories = "Emulator"
+
+# Hardware Information
+manufacturer = "Sony"
+systemname = "PlayStation"
+systemid = "playstation"
+
+# Libretro Features
+database = "Sony - PlayStation"
+supports_no_game = "false"
+savestate = "false"
+cheats = "false"
+input_descriptors = "false"
+memory_descriptors = "false"
+libretro_saves = "false"
+core_options = "true"
+load_subsystem = "false"
+hw_render = "false"
+needs_fullpath = "true"
+disk_control = "false"
+is_experimental = "true"
+
+# Firmware / BIOS
+# The core finds BIOS files by their contents, so these names are only the usual ones.
+firmware_count = 3
+firmware0_desc = "scph5500.bin (PS1 JP BIOS)"
+firmware0_path = "scph5500.bin"
+firmware0_opt = "true"
+firmware1_desc = "scph5501.bin (PS1 US BIOS)"
+firmware1_path = "scph5501.bin"
+firmware1_opt = "true"
+firmware2_desc = "scph5502.bin (PS1 EU BIOS)"
+firmware2_path = "scph5502.bin"
+firmware2_opt = "true"
+notes = "(!) Put a PS1 BIOS file in the system directory. The file name can be different from the names in this list.|(!) Put the PokketSX resources in the system directory, in pokketsx/resources.|(!) To use a PocketStation, put a PocketStation BIOS file in the system directory."
+
+description = "A PlayStation emulator that can also emulate a PocketStation in memory card slot 1. PokketSX is a modified version of DuckStation. This core is experimental. It does not have save states yet."

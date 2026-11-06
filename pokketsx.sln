@@ -46,6 +46,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rcheevos", "dep\rcheevos\rc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pokketsx-regtest", "src\pokketsx-regtest\pokketsx-regtest.vcxproj", "{3029310E-4211-4C87-801A-72E130A648EF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pokketsx-libretro", "src\pokketsx-libretro\pokketsx-libretro.vcxproj", "{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rainterface", "dep\rainterface\rainterface.vcxproj", "{E4357877-D459-45C7-B8F6-DCBB587BB528}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fmt", "dep\fmt\fmt.vcxproj", "{8BE398E6-B882-4248-9065-FECC8728E038}"
@@ -576,6 +578,24 @@ Global
 		{3029310E-4211-4C87-801A-72E130A648EF}.ReleaseLTCG|x64.ActiveCfg = ReleaseLTCG|x64
 		{3029310E-4211-4C87-801A-72E130A648EF}.ReleaseLTCG-Clang|ARM64.ActiveCfg = ReleaseLTCG-Clang|ARM64
 		{3029310E-4211-4C87-801A-72E130A648EF}.ReleaseLTCG-Clang|x64.ActiveCfg = ReleaseLTCG-Clang|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Debug|x64.ActiveCfg = Debug|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Debug-Clang|ARM64.ActiveCfg = Debug-Clang|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Debug-Clang|x64.ActiveCfg = Debug-Clang|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.DebugFast|ARM64.ActiveCfg = DebugFast|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.DebugFast|x64.ActiveCfg = DebugFast|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.DebugFast-Clang|ARM64.ActiveCfg = DebugFast-Clang|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.DebugFast-Clang|ARM64.Build.0 = DebugFast-Clang|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.DebugFast-Clang|x64.ActiveCfg = DebugFast-Clang|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Release|ARM64.ActiveCfg = Release|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Release|x64.ActiveCfg = Release|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Release-Clang|ARM64.ActiveCfg = Release-Clang|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Release-Clang|ARM64.Build.0 = Release-Clang|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.Release-Clang|x64.ActiveCfg = Release-Clang|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.ReleaseLTCG|ARM64.ActiveCfg = ReleaseLTCG|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.ReleaseLTCG|x64.ActiveCfg = ReleaseLTCG|x64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.ReleaseLTCG-Clang|ARM64.ActiveCfg = ReleaseLTCG-Clang|ARM64
+		{CE4A5BA0-DAF1-4AE0-91F7-D9EE46CEBC46}.ReleaseLTCG-Clang|x64.ActiveCfg = ReleaseLTCG-Clang|x64
 		{E4357877-D459-45C7-B8F6-DCBB587BB528}.Debug|ARM64.ActiveCfg = Debug|ARM64
 		{E4357877-D459-45C7-B8F6-DCBB587BB528}.Debug|x64.ActiveCfg = Debug|x64
 		{E4357877-D459-45C7-B8F6-DCBB587BB528}.Debug|x64.Build.0 = Debug|x64

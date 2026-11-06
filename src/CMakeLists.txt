@@ -19,6 +19,10 @@ if(BUILD_REGTEST)
   add_subdirectory(pokketsx-regtest)
 endif()
 
+if(BUILD_LIBRETRO_CORE)
+  add_subdirectory(pokketsx-libretro)
+endif()
+
 if(BUILD_TESTS)
   add_subdirectory(common-tests EXCLUDE_FROM_ALL)
 endif()
