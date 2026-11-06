@@ -111,9 +111,14 @@ void MemMap::UnmapSharedMemory(void* baseaddr, size_t size)
 
 const void* MemMap::GetBaseAddress()
 {
-  const HMODULE mod = GetModuleHandleW(nullptr);
-  if (!mod)
+  // The module containing this code, rather than the process executable, so that the JIT buffer is placed within
+  // reach of our functions when PokketSX is built as a DLL, such as a libretro core.
+  HMODULE mod;
+  if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          reinterpret_cast<LPCWSTR>(&GetBaseAddress), &mod))
+  {
     return nullptr;
+  }
 
   MODULEINFO mi;
   if (!GetModuleInformation(GetCurrentProcess(), mod, &mi, sizeof(mi)))
