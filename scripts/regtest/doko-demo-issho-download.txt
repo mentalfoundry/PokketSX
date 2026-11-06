@@ -1,0 +1,68 @@
+# Doko Demo Issho (Japan) (Rev 1): new game, then download the app to a PocketStation in slot 1.
+#
+# Run with:
+#   pokketsx-regtest -pocketstation -input doko-demo-issho-download.txt -frames 12000
+#     -dumpdir <dir> -dumpinterval 100 -- "Doko Demo Issho (Japan) (Rev 1).cue"
+#
+# The frame numbers were recorded with the runner's defaults (fast boot, software renderer) and an
+# SCPH-5501 BIOS. A different BIOS or different settings can move the screens.
+#
+# Pass: the download message shows from about frame 8000, and from about frame 10600 the game is in
+# Toro's room. Fail: "ダウンロードに失敗しました！" (download failed) shows at about frame 9600.
+
+# Title screen, then pick the default character.
+2400 Start 4
+2700 Circle 4
+3600 Circle 4
+
+# "Read the input explanation?": choose いいえ (No).
+3900 Right 4
+3950 Circle 4
+
+# Pokepi name: keep the default トロ, and choose 決定 (OK) from the end of the grid.
+4100 Up 4
+4150 Up 4
+4200 Circle 4
+
+# Your name: enter あ, then choose 決定.
+4400 Circle 4
+4450 Up 4
+4500 Up 4
+4550 Circle 4
+4650 Up 4
+4700 Up 4
+4750 Circle 4
+
+# Gender, birthday, blood type, then some digits of the phone number.
+4900 Circle 4
+4960 Circle 4
+5020 Circle 4
+5080 Circle 4
+5140 Circle 4
+5200 Circle 4
+5260 Circle 4
+5320 Circle 4
+5380 Circle 4
+5440 Circle 4
+5500 Circle 4
+5560 Circle 4
+
+# Phone number: move to END and choose it.
+5620 Down 4
+5650 Down 4
+5680 Down 4
+5710 Right 4
+5740 Right 4
+5770 Right 4
+5800 Circle 4
+
+# "Is this correct?": choose はい (Yes).
+5880 Left 4
+5920 Circle 4
+
+# "Download to the PocketStation in memory card slot 1?": はい.
+6250 Circle 4
+
+# The PocketStation clock is not set: keep 1999/04/01 00:00, then confirm.
+6700 Circle 4
+6850 Circle 4
