@@ -1,15 +1,18 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
 #include "types.h"
 
 #include <array>
+#include <memory>
 
 class StateWrapper;
 
 class AudioStream;
+struct AudioStreamParameters;
 
 namespace SPU {
 
@@ -48,6 +51,12 @@ bool IsAudioOutputMuted();
 void SetAudioOutputMuted(bool muted);
 
 AudioStream* GetOutputStream();
+
+/// Lets a frontend supply the output stream instead of the configured audio backend, for frontends that collect the
+/// samples themselves, such as libretro. Takes effect the next time the stream is created. nullptr restores the
+/// configured backend.
+using OutputStreamFactory = std::unique_ptr<AudioStream> (*)(u32 sample_rate, const AudioStreamParameters& parameters);
+void SetOutputStreamFactory(OutputStreamFactory factory);
 void RecreateOutputStream();
 
 }; // namespace SPU

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "spu.h"
 #include "cdrom.h"
@@ -358,6 +359,8 @@ static void UpdateDMARequest();
 
 static void CreateOutputStream();
 
+static SPU::OutputStreamFactory s_output_stream_factory = nullptr;
+
 namespace {
 struct SPUState
 {
@@ -477,9 +480,18 @@ void SPU::CreateOutputStream()
            AudioStream::GetStretchModeName(g_settings.audio_stream_parameters.stretch_mode));
 
   Error error;
-  s_state.audio_stream =
-    AudioStream::CreateStream(g_settings.audio_backend, SAMPLE_RATE, g_settings.audio_stream_parameters,
-                              g_settings.audio_driver.c_str(), g_settings.audio_output_device.c_str(), &error);
+  if (s_output_stream_factory)
+  {
+    s_state.audio_stream = s_output_stream_factory(SAMPLE_RATE, g_settings.audio_stream_parameters);
+    if (!s_state.audio_stream)
+      error.SetStringView("The frontend's output stream factory failed.");
+  }
+  else
+  {
+    s_state.audio_stream =
+      AudioStream::CreateStream(g_settings.audio_backend, SAMPLE_RATE, g_settings.audio_stream_parameters,
+                                g_settings.audio_driver.c_str(), g_settings.audio_output_device.c_str(), &error);
+  }
   if (!s_state.audio_stream)
   {
     Host::ReportErrorAsync(
@@ -493,6 +505,11 @@ void SPU::CreateOutputStream()
   s_state.audio_stream->SetOutputVolume(System::GetAudioOutputVolume());
   s_state.audio_stream->SetNominalRate(System::GetAudioNominalRate());
   s_state.audio_stream->SetPaused(System::IsPaused());
+}
+
+void SPU::SetOutputStreamFactory(OutputStreamFactory factory)
+{
+  s_output_stream_factory = factory;
 }
 
 void SPU::RecreateOutputStream()
