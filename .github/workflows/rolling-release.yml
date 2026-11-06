@@ -1,6 +1,6 @@
 name: Create rolling release
 
-# Manual only. Only the Windows x64 build is enabled for now.
+# Manual only. Only the Windows x64 builds are enabled for now: the Qt app and the libretro core.
 on:
   workflow_dispatch:
 
@@ -50,11 +50,30 @@ jobs:
         msbuild pokketsx.sln -t:pokketsx-qt -p:Platform=x64;Configuration=Release -m || exit /b 1
         rem The solution only builds the updater in ReleaseLTCG-Clang, so build it directly.
         msbuild src\updater\updater.vcxproj -p:Platform=x64;Configuration=Release -p:SolutionDir=%CD%\ -m || exit /b 1
+        rem The solution leaves the libretro core out of Release|x64, so build it directly too.
+        msbuild src\pokketsx-libretro\pokketsx-libretro.vcxproj -p:Platform=x64;Configuration=Release -p:SolutionDir=%CD%\ -m || exit /b 1
 
     - name: Create x64 symbols archive
       shell: cmd
       run: |
         "C:\Program Files\7-Zip\7z.exe" a -r pokketsx-windows-x64-release-symbols.zip ./bin/x64/*.pdb
+
+    # Laid out like a RetroArch folder, so that it can be extracted into one. The core loads its dependency DLLs from
+    # its own folder, so they go in cores with it.
+    - name: Create x64 libretro core archive
+      shell: pwsh
+      run: |
+        $stage = "libretro-stage"
+        New-Item -ItemType Directory -Force "$stage\cores", "$stage\info", "$stage\system\pokketsx" | Out-Null
+        Copy-Item bin\x64\libretro-Release\*.dll "$stage\cores\"
+        Copy-Item src\pokketsx-libretro\pokketsx_libretro.info "$stage\info\"
+        Copy-Item -Recurse bin\x64\resources "$stage\system\pokketsx\resources"
+        Copy-Item LICENSE "$stage\LICENSE.txt"
+        Copy-Item docs\libretro.md "$stage\README-libretro.md"
+        & "C:\Program Files\7-Zip\7z.exe" a -r pokketsx-libretro-windows-x64.zip ".\$stage\*"
+        if ($LASTEXITCODE -ne 0) { exit 1 }
+        # Keep the core out of the Qt archive below.
+        Remove-Item -Recurse bin\x64\libretro-Release
 
     - name: Remove extra bloat before archiving
       shell: pwsh
@@ -72,6 +91,12 @@ jobs:
       with:
         name: "windows"
         path: "pokketsx-windows-x64-release*.zip"
+
+    - name: Upload x64 libretro core artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: "windows-libretro"
+        path: "pokketsx-libretro-windows-x64.zip"
 
 
   windows-arm64-build:
@@ -385,6 +410,7 @@ jobs:
           gh release delete latest --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
           gh release create latest --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Latest Rolling Release" \
-            --notes "Windows x64 build of ${GITHUB_SHA}." \
+            --notes "Windows x64 builds of ${GITHUB_SHA}. The release has the PokketSX application and the PokketSX libretro core. The libretro core is experimental." \
             ./artifacts/windows/pokketsx-windows-x64-release.zip \
-            ./artifacts/windows/pokketsx-windows-x64-release-symbols.zip
+            ./artifacts/windows/pokketsx-windows-x64-release-symbols.zip \
+            ./artifacts/windows-libretro/pokketsx-libretro-windows-x64.zip
