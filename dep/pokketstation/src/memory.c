@@ -233,7 +233,14 @@ static uint8_t bus_read8_untraced(psemu_bus_t *bus, uint32_t addr) {
         return dac_read8(bus->dac, addr - PSEMU_DAC_BASE);
     }
     if (addr >= PSEMU_IOP_BASE && addr < PSEMU_IOP_BASE + IOP_REG_SPAN) {
-        return iop_read8(bus->iop, addr - PSEMU_IOP_BASE);
+        uint8_t value = iop_read8(bus->iop, addr - PSEMU_IOP_BASE);
+        /* Apps read IOP_DATA bit 4 as the docking sense. An app that reads 0 after its start
+           disables communication with SWI 11h, and the PS1 then gets no answer. No hardware
+           measurement confirms the bit. */
+        if (addr - PSEMU_IOP_BASE == 0xCu) {
+            value = (uint8_t)((value & ~0x10u) | (bus->com->docked ? 0x10u : 0u));
+        }
+        return value;
     }
     return 0;
 }
