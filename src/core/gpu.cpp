@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "gpu.h"
 #include "dma.h"
@@ -2629,26 +2630,22 @@ void JoinScreenshotThreads()
   }
 }
 
-bool GPU::WriteDisplayTextureToFile(std::string filename, bool compress_on_thread /* = false */)
+bool GPU::DownloadDisplayTexture(std::vector<u32>* texture_data, u32* texture_data_stride)
 {
-  if (!m_display_texture)
-    return false;
-
   const u32 read_x = static_cast<u32>(m_display_texture_view_x);
   const u32 read_y = static_cast<u32>(m_display_texture_view_y);
   const u32 read_width = static_cast<u32>(m_display_texture_view_width);
   const u32 read_height = static_cast<u32>(m_display_texture_view_height);
 
-  const u32 texture_data_stride =
-    Common::AlignUpPow2(GPUTexture::GetPixelSize(m_display_texture->GetFormat()) * read_width, 4);
-  std::vector<u32> texture_data((texture_data_stride * read_height) / sizeof(u32));
+  *texture_data_stride = Common::AlignUpPow2(GPUTexture::GetPixelSize(m_display_texture->GetFormat()) * read_width, 4);
+  texture_data->resize((*texture_data_stride * read_height) / sizeof(u32));
 
   std::unique_ptr<GPUDownloadTexture> dltex;
   if (g_gpu_device->GetFeatures().memory_import)
   {
     dltex =
-      g_gpu_device->CreateDownloadTexture(read_width, read_height, m_display_texture->GetFormat(), texture_data.data(),
-                                          texture_data.size() * sizeof(u32), texture_data_stride);
+      g_gpu_device->CreateDownloadTexture(read_width, read_height, m_display_texture->GetFormat(), texture_data->data(),
+                                          texture_data->size() * sizeof(u32), *texture_data_stride);
   }
   if (!dltex)
   {
@@ -2661,13 +2658,54 @@ bool GPU::WriteDisplayTextureToFile(std::string filename, bool compress_on_threa
   }
 
   dltex->CopyFromTexture(0, 0, m_display_texture, read_x, read_y, read_width, read_height, 0, 0, !dltex->IsImported());
-  if (!dltex->ReadTexels(0, 0, read_width, read_height, texture_data.data(), texture_data_stride))
+  if (!dltex->ReadTexels(0, 0, read_width, read_height, texture_data->data(), *texture_data_stride))
   {
     RestoreDeviceContext();
     return false;
   }
 
   RestoreDeviceContext();
+  return true;
+}
+
+bool GPU::ReadDisplayTextureRGBA8(u32* width, u32* height, std::vector<u32>* pixels)
+{
+  if (!m_display_texture || m_display_texture_view_width <= 0 || m_display_texture_view_height <= 0)
+    return false;
+
+  const u32 read_width = static_cast<u32>(m_display_texture_view_width);
+  const u32 read_height = static_cast<u32>(m_display_texture_view_height);
+
+  u32 stride;
+  if (!DownloadDisplayTexture(pixels, &stride) ||
+      !GPUTexture::ConvertTextureDataToRGBA8(read_width, read_height, *pixels, stride, m_display_texture->GetFormat()))
+  {
+    return false;
+  }
+
+  for (u32& pixel : *pixels)
+    pixel |= 0xFF000000u;
+
+  if (g_gpu_device->UsesLowerLeftOrigin())
+    GPUTexture::FlipTextureDataRGBA8(read_width, read_height, reinterpret_cast<u8*>(pixels->data()), stride);
+
+  *width = read_width;
+  *height = read_height;
+  return true;
+}
+
+bool GPU::WriteDisplayTextureToFile(std::string filename, bool compress_on_thread /* = false */)
+{
+  if (!m_display_texture)
+    return false;
+
+  const u32 read_width = static_cast<u32>(m_display_texture_view_width);
+  const u32 read_height = static_cast<u32>(m_display_texture_view_height);
+
+  std::vector<u32> texture_data;
+  u32 texture_data_stride;
+  if (!DownloadDisplayTexture(&texture_data, &texture_data_stride))
+    return false;
 
   Error error;
   auto fp = FileSystem::OpenManagedCFile(filename.c_str(), "wb", &error);

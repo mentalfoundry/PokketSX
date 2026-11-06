@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 #include "gpu_types.h"
@@ -221,6 +222,10 @@ public:
 
   /// Helper function to save current display texture to PNG.
   bool WriteDisplayTextureToFile(std::string filename, bool compress_on_thread = false);
+
+  /// Reads the current display texture at its own resolution, without post-processing, as RGBA8 with opaque alpha
+  /// and the top row first. Returns false if nothing is being displayed or the read fails.
+  bool ReadDisplayTextureRGBA8(u32* width, u32* height, std::vector<u32>* pixels);
 
   /// Renders the display, optionally with postprocessing to the specified image.
   bool RenderScreenshotToBuffer(u32 width, u32 height, const GSVector4i display_rect, const GSVector4i draw_rect,
@@ -630,6 +635,9 @@ protected:
                          s32 view_height);
 
   bool RenderDisplay(GPUTexture* target, const GSVector4i display_rect, const GSVector4i draw_rect, bool postfx);
+
+  /// Copies the visible part of the display texture to the CPU, in the texture's own format.
+  bool DownloadDisplayTexture(std::vector<u32>* texture_data, u32* texture_data_stride);
 
   bool Deinterlace(u32 field, u32 line_skip);
   bool DeinterlaceExtractField(u32 dst_bufidx, GPUTexture* src, u32 x, u32 y, u32 width, u32 height, u32 line_skip);
