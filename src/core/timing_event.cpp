@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "timing_event.h"
 #include "cpu_core.h"
@@ -35,6 +36,7 @@ struct TimingEventsState
   GlobalTicks current_event_next_run_time = 0;
   GlobalTicks global_tick_counter = 0;
   GlobalTicks event_run_tick_counter = 0;
+  bool exit_after_events = false;
 };
 } // namespace
 
@@ -68,6 +70,7 @@ void TimingEvents::Reset()
 {
   s_state.global_tick_counter = 0;
   s_state.event_run_tick_counter = 0;
+  s_state.exit_after_events = false;
 }
 
 void TimingEvents::Shutdown()
@@ -378,6 +381,21 @@ void TimingEvents::RunEvents()
 
     UpdateCPUDowncount();
   } while (CPU::GetPendingTicks() >= CPU::g_state.downcount);
+
+  // Every caller is a CPU dispatch loop, so the CPU is between instructions here and can resume where it left off.
+  if (s_state.exit_after_events) [[unlikely]]
+  {
+    s_state.exit_after_events = false;
+    CPU::ExitExecution();
+  }
+}
+
+void TimingEvents::RequestExitAfterEvents()
+{
+  s_state.exit_after_events = true;
+
+  // Make the CPU run events at the next instruction or block boundary, as with a pending interrupt.
+  CPU::g_state.downcount = 0;
 }
 
 void TimingEvents::CommitLeftoverTicks()

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
@@ -261,6 +262,10 @@ bool SaveResumeState(Error* error);
 
 /// Runs the VM until the CPU execution is canceled.
 void Execute();
+
+/// Runs the VM until the end of the next frame, then returns. For frontends that drive emulation one frame at a
+/// time, such as libretro.
+void ExecuteFrame();
 
 void SingleStepCPU();
 

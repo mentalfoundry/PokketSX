@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
@@ -89,6 +90,11 @@ bool IsRunningEvents();
 void CancelRunningEvent();
 void RunEvents();
 void CommitLeftoverTicks();
+
+/// Leaves CPU execution once the CPU next runs events, which is always between instructions. Unlike
+/// CPU::ExitExecution(), this is safe from code that runs in the middle of an instruction, such as an event invoked
+/// early by a register access.
+void RequestExitAfterEvents();
 
 void UpdateCPUDowncount();
 

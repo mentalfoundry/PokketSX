@@ -219,7 +219,6 @@ static u32 CompressAndWriteStateData(std::FILE* fp, std::span<const u8> src, Sav
 static bool DoState(StateWrapper& sw, GPUTexture** host_texture, bool update_display, bool is_memory_state);
 
 static bool IsExecutionInterrupted();
-static void CheckForAndExitExecution();
 
 static void SetRewinding(bool enabled);
 static bool SaveRewindState();
@@ -227,6 +226,8 @@ static void DoRewind();
 
 static void SaveRunaheadState();
 static bool DoRunahead();
+
+static void EndFrame();
 
 static void UpdateSessionTime(const std::string& prev_serial);
 
@@ -271,6 +272,8 @@ static bool s_running_game_custom_title = false;
 
 static bool s_system_executing = false;
 static bool s_system_interrupted = false;
+static bool s_execute_single_frame = false;
+static bool s_frame_end_pending = false;
 static bool s_frame_step_request = false;
 static bool s_fast_forward_enabled = false;
 static bool s_turbo_enabled = false;
@@ -609,17 +612,6 @@ bool System::IsRunning()
 ALWAYS_INLINE bool System::IsExecutionInterrupted()
 {
   return s_state != State::Running || s_system_interrupted;
-}
-
-ALWAYS_INLINE_RELEASE void System::CheckForAndExitExecution()
-{
-  if (IsExecutionInterrupted()) [[unlikely]]
-  {
-    s_system_interrupted = false;
-
-    TimingEvents::CancelRunningEvent();
-    CPU::ExitExecution();
-  }
 }
 
 bool System::IsPaused()
@@ -1837,6 +1829,7 @@ bool System::Initialize(bool force_software_renderer, Error* error)
   s_max_slice_ticks = ScaleTicksToOverclock(MASTER_CLOCK / 10);
   s_frame_number = 1;
   s_internal_frame_number = 1;
+  s_frame_end_pending = false;
 
   s_target_speed = g_settings.emulation_speed;
   s_throttle_frequency = 60.0f;
@@ -2044,7 +2037,22 @@ void System::Execute()
         else
           CPU::Execute();
 
+        // After each frame, the CPU stops at the first point that it is between instructions, see FrameDone(). The
+        // rest of the frame's work happens here, still counted as executing, so that requests made from it, such as
+        // pausing or shutting down, are deferred to this loop as they would be from inside the CPU.
+        const bool frame_ended = s_frame_end_pending;
+        if (frame_ended)
+        {
+          s_frame_end_pending = false;
+          EndFrame();
+        }
+
         s_system_executing = false;
+        s_system_interrupted = false;
+
+        if (frame_ended && s_execute_single_frame)
+          return;
+
         continue;
       }
 
@@ -2061,10 +2069,31 @@ void System::Execute()
   }
 }
 
+void System::ExecuteFrame()
+{
+  // Runahead ends several frames per call while it replays, and rewind runs without ending frames, so neither works
+  // here. Frontends that use this are expected to provide those features themselves.
+  DebugAssert(s_rewind_load_counter < 0 && s_runahead_frames == 0);
+
+  s_execute_single_frame = true;
+  Execute();
+  s_execute_single_frame = false;
+}
+
 void System::FrameDone()
 {
   s_frame_number++;
 
+  // This can run in the middle of an instruction, when a register access invokes the CRTC event early. The rest of
+  // the frame's work can leave execution, and save or load memory states for rewind and runahead, all of which need
+  // the CPU to be between instructions. So it is left to EndFrame(), which Execute() calls once the CPU stops at the
+  // next point that it is.
+  s_frame_end_pending = true;
+  TimingEvents::RequestExitAfterEvents();
+}
+
+void System::EndFrame()
+{
   // Vertex buffer is shared, need to flush what we have.
   g_gpu->FlushRender();
 
@@ -2119,7 +2148,8 @@ void System::FrameDone()
       Host::PumpMessagesOnCPUThread();
       InputManager::PollSources();
       g_gpu->RestoreDeviceContext();
-      CheckForAndExitExecution();
+      if (IsExecutionInterrupted())
+        return;
     }
 
     if (DoRunahead())
@@ -2224,7 +2254,8 @@ void System::FrameDone()
   {
     Host::PumpMessagesOnCPUThread();
     InputManager::PollSources();
-    CheckForAndExitExecution();
+    if (IsExecutionInterrupted())
+      return;
   }
 
   g_gpu->RestoreDeviceContext();
@@ -2551,6 +2582,7 @@ void System::InternalReset()
   Achievements::ResetClient();
   s_frame_number = 1;
   s_internal_frame_number = 0;
+  s_frame_end_pending = false;
 }
 
 bool System::SetBootMode(BootMode new_boot_mode, Error* error)
@@ -4963,9 +4995,7 @@ bool System::DoRunahead()
 #endif
 
     // we don't want to save the frame we just loaded. but we are "one frame ahead", because the frame we just tossed
-    // was never saved, so return but don't decrement the counter
-    InterruptExecution();
-    CheckForAndExitExecution();
+    // was never saved, so return but don't decrement the counter. Execute() resumes the CPU from the loaded state.
     return true;
   }
   else if (s_runahead_replay_frames == 0)
