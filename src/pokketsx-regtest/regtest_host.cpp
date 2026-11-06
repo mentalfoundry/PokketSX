@@ -29,8 +29,10 @@
 #include "common/string_util.h"
 #include "common/timer.h"
 
+#include <algorithm>
 #include <csignal>
 #include <cstdio>
+#include <cstring>
 
 Log_SetChannel(RegTestHost);
 
@@ -44,6 +46,7 @@ static void HookSignals();
 static bool SetFolders();
 static bool SetNewDataRoot(const std::string& filename);
 static std::string GetFrameDumpFilename(u32 frame);
+static bool LoadInputScript(const char* path);
 } // namespace RegTestHost
 
 static std::unique_ptr<MemorySettingsInterface> s_base_settings_interface;
@@ -52,6 +55,19 @@ static u32 s_frames_to_run = 60 * 60;
 static u32 s_frames_remaining = 0;
 static u32 s_frame_dump_interval = 0;
 static std::string s_dump_base_directory;
+
+// Scripted input for controller port 1, loaded by -input.
+struct ScriptEvent
+{
+  u32 frame;
+  bool save_state;
+  u32 bind_index;
+  u32 hold_frames;
+  std::string path;
+};
+static std::vector<ScriptEvent> s_script;
+static std::vector<std::pair<u32, u32>> s_releases; // frame, bind index
+static constexpr u32 DEFAULT_HOLD_FRAMES = 3;
 
 bool RegTestHost::SetFolders()
 {
@@ -362,6 +378,42 @@ void Host::ReleaseRenderWindow()
 void Host::FrameDone()
 {
   const u32 frame = System::GetFrameNumber();
+
+  if (Controller* const pad = System::GetController(0))
+  {
+    for (auto it = s_releases.begin(); it != s_releases.end();)
+    {
+      if (it->first <= frame)
+      {
+        pad->SetBindState(it->second, 0.0f);
+        it = s_releases.erase(it);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+
+    for (const ScriptEvent& ev : s_script)
+    {
+      if (ev.frame != frame)
+        continue;
+
+      if (ev.save_state)
+      {
+        Error error;
+        if (!System::SaveState(ev.path.c_str(), &error, false))
+          ERROR_LOG("Failed to save state to '{}': {}", ev.path, error.GetDescription());
+        else
+          INFO_LOG("Frame {}: saved state to '{}'", frame, ev.path);
+        continue;
+      }
+
+      INFO_LOG("Frame {}: press bind {} for {} frames", frame, ev.bind_index, ev.hold_frames);
+      pad->SetBindState(ev.bind_index, 1.0f);
+      s_releases.emplace_back(frame + ev.hold_frames, ev.bind_index);
+    }
+  }
   if (s_frame_dump_interval > 0 && (s_frame_dump_interval == 1 || (frame % s_frame_dump_interval) == 0))
   {
     std::string dump_filename(RegTestHost::GetFrameDumpFilename(frame));
@@ -514,12 +566,97 @@ void RegTestHost::PrintCommandLineHelp(const char* progname)
   std::fprintf(stderr, "  -dumpinterval: Dumps every N frames.\n");
   std::fprintf(stderr, "  -frames: Sets the number of frames to execute.\n");
   std::fprintf(stderr, "  -log <level>: Sets the log level. Defaults to verbose.\n");
+  std::fprintf(stderr, "  -input <file>: Presses buttons on controller port 1 from a script. Each line is\n"
+                       "    \"<frame> <button> [<hold frames>]\" (default hold 3), or \"<frame> savestate <path>\".\n"
+                       "    Button names are the analog controller binding names, e.g. Cross, Circle, Up, Start.\n"
+                       "    Empty lines and lines starting with # are ignored.\n");
+  std::fprintf(stderr, "  -memcard <path>: Uses the given file as the memory card in slot 1.\n");
+  std::fprintf(stderr, "  -loadstate <path>: Loads the given save state after booting.\n");
   std::fprintf(stderr, "  -pocketstation: Puts a PocketStation in memory card slot 1.\n");
   std::fprintf(stderr, "  -renderer <renderer>: Sets the graphics renderer. Default to software.\n");
   std::fprintf(stderr, "  --: Signals that no more arguments will follow and the remaining\n"
                        "    parameters make up the filename. Use when the filename contains\n"
                        "    spaces or starts with a dash.\n");
   std::fprintf(stderr, "\n");
+}
+
+bool RegTestHost::LoadInputScript(const char* path)
+{
+  std::optional<std::string> data = FileSystem::ReadFileToString(path);
+  if (!data.has_value())
+  {
+    ERROR_LOG("Failed to read input script '{}'.", path);
+    return false;
+  }
+
+  // Port 1 is always an analog controller in this runner, so the names are resolved against its bindings.
+  const Controller::ControllerInfo* const info = Controller::GetControllerInfo(ControllerType::AnalogController);
+
+  u32 line_number = 0;
+  for (const std::string_view raw_line : StringUtil::SplitString(data.value(), '\n', false))
+  {
+    line_number++;
+
+    const std::string_view line = StringUtil::StripWhitespace(raw_line);
+    if (line.empty() || line.starts_with('#'))
+      continue;
+
+    const std::vector<std::string_view> fields = StringUtil::SplitString(line, ' ');
+    const std::optional<u32> frame = (fields.size() >= 2) ? StringUtil::FromChars<u32>(fields[0]) : std::nullopt;
+    if (!frame.has_value())
+    {
+      ERROR_LOG("Input script line {}: expected '<frame> <button> [<hold frames>]' or '<frame> savestate <path>'.",
+                line_number);
+      return false;
+    }
+
+    ScriptEvent ev = {};
+    ev.frame = frame.value();
+
+    if (fields[1] == "savestate")
+    {
+      // The path is the rest of the line, so it may contain spaces.
+      const size_t path_start = line.find("savestate") + std::strlen("savestate");
+      ev.save_state = true;
+      ev.path = StringUtil::StripWhitespace(line.substr(path_start));
+      if (ev.path.empty())
+      {
+        ERROR_LOG("Input script line {}: savestate needs a path.", line_number);
+        return false;
+      }
+
+      s_script.push_back(std::move(ev));
+      continue;
+    }
+
+    const auto binding = std::find_if(info->bindings.begin(), info->bindings.end(),
+                                      [&fields](const Controller::ControllerBindingInfo& bi) {
+                                        return fields[1] == bi.name;
+                                      });
+    if (binding == info->bindings.end())
+    {
+      ERROR_LOG("Input script line {}: unknown button '{}'.", line_number, fields[1]);
+      return false;
+    }
+
+    ev.bind_index = binding->bind_index;
+    ev.hold_frames = DEFAULT_HOLD_FRAMES;
+    if (fields.size() >= 3)
+    {
+      const std::optional<u32> hold = StringUtil::FromChars<u32>(fields[2]);
+      if (!hold.has_value() || hold.value() == 0)
+      {
+        ERROR_LOG("Input script line {}: invalid hold frame count '{}'.", line_number, fields[2]);
+        return false;
+      }
+      ev.hold_frames = hold.value();
+    }
+
+    s_script.push_back(std::move(ev));
+  }
+
+  INFO_LOG("Loaded {} input script events from '{}'.", s_script.size(), path);
+  return true;
 }
 
 static std::optional<SystemBootParameters>& AutoBoot(std::optional<SystemBootParameters>& autoboot)
@@ -594,6 +731,25 @@ bool RegTestHost::ParseCommandLineParameters(int argc, char* argv[], std::option
 
         Log::SetLogLevel(level.value());
         s_base_settings_interface->SetStringValue("Logging", "LogLevel", Settings::GetLogLevelName(level.value()));
+        continue;
+      }
+      else if (CHECK_ARG_PARAM("-input"))
+      {
+        if (!LoadInputScript(argv[++i]))
+          return false;
+
+        continue;
+      }
+      else if (CHECK_ARG_PARAM("-memcard"))
+      {
+        s_base_settings_interface->SetStringValue("MemoryCards", "Card1Type",
+                                                  Settings::GetMemoryCardTypeName(MemoryCardType::Shared));
+        s_base_settings_interface->SetStringValue("MemoryCards", "Card1Path", argv[++i]);
+        continue;
+      }
+      else if (CHECK_ARG_PARAM("-loadstate"))
+      {
+        AutoBoot(autoboot)->save_state = argv[++i];
         continue;
       }
       else if (CHECK_ARG("-pocketstation"))
