@@ -40,6 +40,10 @@ public:
   /// Releases /SEL at the end of a transaction. was_selected is false if the device took no part in it.
   void ResetTransferState(bool was_selected);
 
+  /// Returns true if the device's kernel will answer the console, as of the current console time. An app can turn
+  /// communication off while it runs.
+  bool IsCommunicationEnabled();
+
   /// Copies the device's flash to data. Returns true if it differed.
   bool SaveFlash(MemoryCardImage::DataArray* data);
 

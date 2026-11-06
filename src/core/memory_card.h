@@ -38,6 +38,7 @@ public:
   const std::string& GetFilename() const { return m_filename; }
   void SetFilename(std::string filename) { m_filename = std::move(filename); }
   bool IsPocketStation() const { return static_cast<bool>(m_pocketstation); }
+  PocketStation* GetPocketStation() const { return m_pocketstation.get(); }
 
   /// Makes this card a PocketStation, with the card data as its flash. slot selects the device's serial number.
   /// On failure, the card is left unchanged.

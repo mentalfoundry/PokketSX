@@ -366,6 +366,12 @@ void PocketStation::ResetTransferState(bool was_selected)
   psemu_com_set_selected(m_ps, 0);
 }
 
+bool PocketStation::IsCommunicationEnabled()
+{
+  CatchUp();
+  return (psemu_com_is_enabled(m_ps) != 0);
+}
+
 bool PocketStation::SaveFlash(MemoryCardImage::DataArray* data)
 {
   // As of the current console time, not a run to an acknowledge that may yet be undone.

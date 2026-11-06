@@ -8,6 +8,9 @@
 #include "core/game_list.h"
 #include "core/gpu.h"
 #include "core/host.h"
+#include "core/memory_card.h"
+#include "core/pad.h"
+#include "core/pocketstation.h"
 #include "core/system.h"
 
 #include "scmversion/scmversion.h"
@@ -57,17 +60,25 @@ static u32 s_frame_dump_interval = 0;
 static std::string s_dump_base_directory;
 
 // Scripted input for controller port 1, loaded by -input.
+enum class ScriptAction : u8
+{
+  Press,
+  SaveState,
+  ExpectPocketStationComm,
+};
 struct ScriptEvent
 {
   u32 frame;
-  bool save_state;
+  ScriptAction action;
   u32 bind_index;
   u32 hold_frames;
   std::string path;
+  bool done;
 };
 static std::vector<ScriptEvent> s_script;
 static std::vector<std::pair<u32, u32>> s_releases; // frame, bind index
 static constexpr u32 DEFAULT_HOLD_FRAMES = 3;
+static u32 s_expect_failures = 0;
 
 bool RegTestHost::SetFolders()
 {
@@ -394,24 +405,53 @@ void Host::FrameDone()
       }
     }
 
-    for (const ScriptEvent& ev : s_script)
+    for (ScriptEvent& ev : s_script)
     {
       if (ev.frame != frame)
         continue;
 
-      if (ev.save_state)
+      ev.done = true;
+      switch (ev.action)
       {
-        Error error;
-        if (!System::SaveState(ev.path.c_str(), &error, false))
-          ERROR_LOG("Failed to save state to '{}': {}", ev.path, error.GetDescription());
-        else
-          INFO_LOG("Frame {}: saved state to '{}'", frame, ev.path);
-        continue;
-      }
+        case ScriptAction::Press:
+        {
+          INFO_LOG("Frame {}: press bind {} for {} frames", frame, ev.bind_index, ev.hold_frames);
+          pad->SetBindState(ev.bind_index, 1.0f);
+          s_releases.emplace_back(frame + ev.hold_frames, ev.bind_index);
+        }
+        break;
 
-      INFO_LOG("Frame {}: press bind {} for {} frames", frame, ev.bind_index, ev.hold_frames);
-      pad->SetBindState(ev.bind_index, 1.0f);
-      s_releases.emplace_back(frame + ev.hold_frames, ev.bind_index);
+        case ScriptAction::SaveState:
+        {
+          Error error;
+          if (!System::SaveState(ev.path.c_str(), &error, false))
+            ERROR_LOG("Failed to save state to '{}': {}", ev.path, error.GetDescription());
+          else
+            INFO_LOG("Frame {}: saved state to '{}'", frame, ev.path);
+        }
+        break;
+
+        case ScriptAction::ExpectPocketStationComm:
+        {
+          MemoryCard* const card = Pad::GetMemoryCard(0);
+          PocketStation* const ps = card ? card->GetPocketStation() : nullptr;
+          if (!ps)
+          {
+            ERROR_LOG("Frame {}: EXPECT FAILED: there is no PocketStation in slot 1.", frame);
+            s_expect_failures++;
+          }
+          else if (!ps->IsCommunicationEnabled())
+          {
+            ERROR_LOG("Frame {}: EXPECT FAILED: the PocketStation in slot 1 has communication disabled.", frame);
+            s_expect_failures++;
+          }
+          else
+          {
+            INFO_LOG("Frame {}: expect passed: the PocketStation in slot 1 has communication enabled.", frame);
+          }
+        }
+        break;
+      }
     }
   }
   if (s_frame_dump_interval > 0 && (s_frame_dump_interval == 1 || (frame % s_frame_dump_interval) == 0))
@@ -569,6 +609,8 @@ void RegTestHost::PrintCommandLineHelp(const char* progname)
   std::fprintf(stderr, "  -input <file>: Presses buttons on controller port 1 from a script. Each line is\n"
                        "    \"<frame> <button> [<hold frames>]\" (default hold 3), or \"<frame> savestate <path>\".\n"
                        "    Button names are the analog controller binding names, e.g. Cross, Circle, Up, Start.\n"
+                       "    \"<frame> expect pocketstation-comm\" fails the run unless the PocketStation in slot 1\n"
+                       "    has communication enabled at that frame.\n"
                        "    Empty lines and lines starting with # are ignored.\n");
   std::fprintf(stderr, "  -memcard <path>: Uses the given file as the memory card in slot 1.\n");
   std::fprintf(stderr, "  -loadstate <path>: Loads the given save state after booting.\n");
@@ -605,7 +647,8 @@ bool RegTestHost::LoadInputScript(const char* path)
     const std::optional<u32> frame = (fields.size() >= 2) ? StringUtil::FromChars<u32>(fields[0]) : std::nullopt;
     if (!frame.has_value())
     {
-      ERROR_LOG("Input script line {}: expected '<frame> <button> [<hold frames>]' or '<frame> savestate <path>'.",
+      ERROR_LOG("Input script line {}: expected '<frame> <button> [<hold frames>]', '<frame> savestate <path>' or "
+                "'<frame> expect pocketstation-comm'.",
                 line_number);
       return false;
     }
@@ -613,11 +656,24 @@ bool RegTestHost::LoadInputScript(const char* path)
     ScriptEvent ev = {};
     ev.frame = frame.value();
 
+    if (fields[1] == "expect")
+    {
+      if (fields.size() != 3 || fields[2] != "pocketstation-comm")
+      {
+        ERROR_LOG("Input script line {}: expected '<frame> expect pocketstation-comm'.", line_number);
+        return false;
+      }
+
+      ev.action = ScriptAction::ExpectPocketStationComm;
+      s_script.push_back(std::move(ev));
+      continue;
+    }
+
     if (fields[1] == "savestate")
     {
       // The path is the rest of the line, so it may contain spaces.
       const size_t path_start = line.find("savestate") + std::strlen("savestate");
-      ev.save_state = true;
+      ev.action = ScriptAction::SaveState;
       ev.path = StringUtil::StripWhitespace(line.substr(path_start));
       if (ev.path.empty())
       {
@@ -639,6 +695,7 @@ bool RegTestHost::LoadInputScript(const char* path)
       return false;
     }
 
+    ev.action = ScriptAction::Press;
     ev.bind_index = binding->bind_index;
     ev.hold_frames = DEFAULT_HOLD_FRAMES;
     if (fields.size() >= 3)
@@ -954,6 +1011,22 @@ int main(int argc, char* argv[])
     INFO_LOG("Total execution time: {:.2f}ms, average frame time {:.2f}ms, {:.2f} FPS", elapsed_time_ms,
              elapsed_time_ms / static_cast<double>(s_frames_to_run),
              static_cast<double>(s_frames_to_run) / elapsed_time_ms * 1000.0);
+  }
+
+  for (const ScriptEvent& ev : s_script)
+  {
+    if (ev.action == ScriptAction::ExpectPocketStationComm && !ev.done)
+    {
+      ERROR_LOG("EXPECT FAILED: the run ended before frame {}.", ev.frame);
+      s_expect_failures++;
+    }
+  }
+
+  if (s_expect_failures > 0)
+  {
+    ERROR_LOG("Exiting with failure: {} expectation(s) failed.", s_expect_failures);
+    result = EXIT_FAILURE;
+    goto cleanup;
   }
 
   INFO_LOG("Exiting with success.");

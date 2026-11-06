@@ -7,8 +7,10 @@
 # The frame numbers were recorded with the runner's defaults (fast boot, software renderer) and an
 # SCPH-5501 BIOS. A different BIOS or different settings can move the screens.
 #
-# Pass: the download message shows from about frame 8000, and from about frame 10600 the game is in
-# Toro's room. Fail: "ダウンロードに失敗しました！" (download failed) shows at about frame 9600.
+# The run exits with a failure code unless the PocketStation answers both before and after the game
+# starts the app (the expect lines at the end). In the frame dumps, a pass shows the download message
+# from about frame 8000 and Toro's room from about frame 10600. A fail shows
+# "ダウンロードに失敗しました！" (download failed) at about frame 9600.
 
 # Title screen, then pick the default character.
 2400 Start 4
@@ -66,3 +68,9 @@
 # The PocketStation clock is not set: keep 1999/04/01 00:00, then confirm.
 6700 Circle 4
 6850 Circle 4
+
+# The download is in progress, before the game starts the app.
+8000 expect pocketstation-comm
+
+# The game starts the app between frames 9300 and 9600. The app must leave communication on while docked.
+11000 expect pocketstation-comm
