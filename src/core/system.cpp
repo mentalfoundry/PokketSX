@@ -4882,6 +4882,8 @@ bool System::LoadRewindState(u32 skip_saves /*= 0*/, bool consume_state /*=true 
   if (!LoadMemoryState(s_rewind_states.back()))
     return false;
 
+  DEV_LOG("Rewound to frame {}.", s_frame_number);
+
   if (consume_state)
     s_rewind_states.pop_back();
 
@@ -4899,6 +4901,8 @@ bool System::IsRewinding()
 
 void System::SetRewinding(bool enabled)
 {
+  DEV_LOG("Rewinding {} at frame {}.", enabled ? "started" : "stopped", s_frame_number);
+
   if (enabled)
   {
     const bool was_enabled = IsRewinding();
