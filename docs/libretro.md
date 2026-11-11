@@ -54,6 +54,22 @@ Each controller port can have one of these devices:
 - DualShock
 - None
 
+## Save states
+
+The core supports save states. You can save and load states from the RetroArch menu, and use the RetroArch rewind function.
+
+A save state contains the full console, and also these items:
+
+- The memory cards. When you load a state, the memory cards go back to their data at the time of the state.
+- The PocketStation, with its flash memory. When you load a state, the PocketStation goes back to the time of the state, together with the console. A download to the PocketStation that was in progress continues correctly.
+- The controller types. When you load a state, each port gets the controller type that it had at the time of the state.
+
+> **CAUTION:** Make sure that you do not load an older state after you save your game to a memory card or to the PocketStation. The memory card or the PocketStation goes back to its data at the time of the state, and the save that you made after that time is lost.
+
+A state from an older version of PokketSX does not contain the PocketStation. When you load such a state, the PocketStation continues from its current condition.
+
+Runahead in RetroArch operates with this core, but it is slow. The core loads a state in approximately 20 ms, and runahead loads a state for each frame. Do not use runahead with this core yet.
+
 ## Build the core
 
 ### Windows
@@ -79,7 +95,6 @@ Configure CMake with `-DBUILD_LIBRETRO_CORE=ON`.
 
 The core does not have these functions yet:
 
-- Save states. Because of this, the RetroArch functions for save states, rewind and runahead do not operate.
 - Display of the PocketStation screen.
 - Direct output to the video system of the frontend. The core reads each frame back from the GPU. This is slower at high resolutions.
 - Disc change, cheats, achievements, multitap, light guns and mice.

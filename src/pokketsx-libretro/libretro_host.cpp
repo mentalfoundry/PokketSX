@@ -237,6 +237,10 @@ void LibretroHost::LibretroAudioStream::Initialize()
 
 void LibretroHost::LibretroAudioStream::Flush()
 {
+  // Nothing may stay behind in the stream between frames, otherwise those samples would play after a state load, and
+  // frontends load states every frame for runahead.
+  FlushPartialChunk();
+
   const u32 frames = GetBufferedFramesRelaxed();
   if (frames == 0)
     return;
@@ -328,6 +332,10 @@ void LibretroHost::InitializeSettings()
   si.SetIntValue("Main", "RunaheadFrameCount", 0);
   si.SetBoolValue("Main", "SaveStateOnExit", false);
   si.SetBoolValue("Main", "ConfirmPowerOff", false);
+  // Restore memory cards and controllers from states, as libretro frontends expect and as their rewind and runahead
+  // need. Otherwise a card that changed since the state was saved is plugged in again as a new card, and the game sees
+  // that.
+  si.SetBoolValue("Main", "LoadDevicesFromSaveStates", true);
   si.SetStringValue("Audio", "Backend", AudioStream::GetBackendName(AudioBackend::Null));
   si.SetBoolValue("Display", "VSync", false);
   si.SetBoolValue("Display", "ShowOSDMessages", false);
@@ -695,6 +703,10 @@ RETRO_API bool retro_load_game(const retro_game_info* game)
   ApplyCoreOptions();
   ApplyPortDevices();
 
+  // States are raw little-endian memory.
+  u64 serialization_quirks = RETRO_SERIALIZATION_QUIRK_ENDIAN_DEPENDENT;
+  s_environment(RETRO_ENVIRONMENT_SET_SERIALIZATION_QUIRKS, &serialization_quirks);
+
   ImGuiManager::SetFontPathAndRange(std::string(), {0x0020, 0x00FF, 0, 0});
   SPU::SetOutputStreamFactory(&CreateAudioStream);
 
@@ -777,18 +789,36 @@ RETRO_API unsigned retro_get_region(void)
 
 RETRO_API size_t retro_serialize_size(void)
 {
-  // TODO: Save states.
-  return 0;
+  return System::IsValid() ? System::GetSerializedStateSize() : 0;
 }
 
 RETRO_API bool retro_serialize(void* data, size_t size)
 {
-  return false;
+  u8* const buffer = static_cast<u8*>(data);
+  size_t written;
+  Error error;
+  if (!System::SerializeState(std::span<u8>(buffer, size), &written, &error))
+  {
+    ERROR_LOG("Failed to save state: {}", error.GetDescription());
+    return false;
+  }
+
+  // Zero the rest, so that states of the same moment are byte for byte the same.
+  std::memset(buffer + written, 0, size - written);
+  return true;
 }
 
 RETRO_API bool retro_unserialize(const void* data, size_t size)
 {
-  return false;
+  Error error;
+  if (!System::UnserializeState(std::span<const u8>(static_cast<const u8*>(data), size), &error))
+  {
+    ERROR_LOG("Failed to load state: {}", error.GetDescription());
+    LibretroHost::ShowMessage(fmt::format("Failed to load state: {}", error.GetDescription()));
+    return false;
+  }
+
+  return true;
 }
 
 RETRO_API void retro_cheat_reset(void)
