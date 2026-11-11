@@ -277,7 +277,11 @@ bool Pad::DoStateMemcard(StateWrapper& sw, u32 i, bool is_memory_state)
   MemoryCard* card_ptr = s_memory_cards[i].get();
   if (card_present_in_state)
   {
-    if (sw.IsReading() && !g_settings.load_devices_from_save_states)
+    // A PocketStation always loads from the state: its flash is part of the device, and holds e.g. an app download in
+    // progress, so it cannot be kept from the current card while the rest of the device goes back. A state without
+    // the device leaves it as it is, see MemoryCard::DoState().
+    const bool is_pocketstation = (s_memory_cards[i] && s_memory_cards[i]->IsPocketStation());
+    if (sw.IsReading() && !g_settings.load_devices_from_save_states && !is_pocketstation)
     {
       // load memcard into a temporary: If the card datas match, take the one from the savestate
       // since it has other useful non-data state information. Otherwise take the user's card

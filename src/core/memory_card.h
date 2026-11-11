@@ -15,6 +15,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 class Error;
 class PocketStation;
@@ -140,4 +141,8 @@ private:
 
   // The device has seen /SEL in this transaction, so it must be released at the end.
   bool m_pocketstation_selected = false;
+
+  // The device's part of the last state saved or loaded. A card that loads a state for comparison, without a device,
+  // keeps it for CopyState().
+  std::vector<u8> m_pocketstation_state;
 };

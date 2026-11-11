@@ -92,13 +92,44 @@ bool MemoryCard::DoState(StateWrapper& sw)
   sw.Do(&m_data);
   sw.Do(&m_changed);
 
-  // A state load does not rewind the device. Keep its flash as the card data, and end any transfer in progress.
-  if (sw.IsReading() && m_pocketstation)
+  // Since version 72, a PocketStation is part of the state, so that loading a state rewinds it with the console.
+  if (sw.GetVersion() >= 72)
   {
-    m_pocketstation->SaveFlash(&m_data);
-    m_changed = false;
-    ResetTransferState();
+    if (sw.IsWriting())
+    {
+      m_pocketstation_state.clear();
+      if (m_pocketstation)
+        m_pocketstation->SaveState(&m_pocketstation_state);
+    }
+
+    sw.Do(&m_pocketstation_state);
+    sw.Do(&m_pocketstation_selected);
   }
+  else if (sw.IsReading())
+  {
+    m_pocketstation_state.clear();
+  }
+
+  if (sw.IsReading() && m_pocketstation && !sw.HasError())
+  {
+    Error error;
+    if (m_pocketstation_state.empty() || !m_pocketstation->LoadState(m_pocketstation_state, &error))
+    {
+      if (!m_pocketstation_state.empty())
+        WARNING_LOG("Could not load the PocketStation from the state, so it carries on: {}", error.GetDescription());
+
+      // Without the device in the state, it carries on as it is. Keep its flash as the card data, and end any
+      // transfer in progress.
+      m_pocketstation->SaveFlash(&m_data);
+      m_changed = false;
+      ResetTransferState();
+    }
+  }
+
+  // A card with unsaved changes in the state still needs its file written. The timing events load after this, and
+  // give the write its time from the state.
+  if (sw.IsReading() && m_changed)
+    QueueFileSave();
 
   return !sw.HasError();
 }
@@ -107,11 +138,20 @@ void MemoryCard::CopyState(const MemoryCard* src)
 {
   DebugAssert(m_data == src->m_data);
 
-  // See DoState().
+  // The card data matches, so the device in the state can be loaded with it. See DoState().
   if (m_pocketstation)
   {
-    ResetTransferState();
-    return;
+    Error error;
+    if (src->m_pocketstation_state.empty() || !m_pocketstation->LoadState(src->m_pocketstation_state, &error))
+    {
+      if (!src->m_pocketstation_state.empty())
+        WARNING_LOG("Could not load the PocketStation from the state, so it carries on: {}", error.GetDescription());
+
+      ResetTransferState();
+      return;
+    }
+
+    m_pocketstation_selected = src->m_pocketstation_selected;
   }
 
   m_state = src->m_state;
@@ -121,6 +161,10 @@ void MemoryCard::CopyState(const MemoryCard* src)
   m_checksum = src->m_checksum;
   m_last_byte = src->m_last_byte;
   m_changed = src->m_changed;
+
+  // See DoState().
+  if (m_changed)
+    QueueFileSave();
 }
 
 void MemoryCard::ResetTransferState()

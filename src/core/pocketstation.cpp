@@ -61,6 +61,10 @@ constexpr u64 ACK_BUDGET_UNITS = static_cast<u64>(PSEMU_COM_DEFAULT_TIMEOUT_CYCL
 // A larger lead can only come from the console clock going backwards.
 constexpr u64 MAX_LEAD_UNITS = ACK_BUDGET_UNITS * 2u;
 
+// SaveState() data: STATE_MAGIC, then the anchor in console ticks and the device time run since it, then the device.
+constexpr u32 STATE_MAGIC = 0x53504B50; // "PKPS"
+constexpr size_t STATE_HEADER_SIZE = sizeof(u32) + sizeof(u64) + sizeof(u64);
+
 // Frame limits for PrepareForSave(). The kernel programs flash after /SEL is released, so a Write Sector sent just
 // before shutdown needs time to complete.
 constexpr u32 WRITE_SECTOR_SETTLE_FRAMES = 50;
@@ -166,6 +170,12 @@ void PocketStation::PrepareForSave()
 
   // Everything below happens after console time ends for the device, so nothing may undo it.
   CatchUp();
+
+  // The resume state is saved after this. It must hold the device as it is now, docked with its app running, so that
+  // the session can carry on from it.
+  if (!SaveState(&m_final_state))
+    m_final_state.clear();
+
   m_event.Deactivate();
   m_saved_valid = false;
   m_finished = true;
@@ -220,6 +230,72 @@ void PocketStation::PrepareForSave()
     INFO_LOG("App saved its progress after {} frames.", frames + 1);
   else
     INFO_LOG("App did not write to flash on exit.");
+}
+
+bool PocketStation::SaveState(std::vector<u8>* data)
+{
+  if (m_finished)
+  {
+    *data = m_final_state;
+    return !data->empty();
+  }
+
+  // Undo a run to an acknowledge that the console has not reached yet. The device clock is exact, so running it again
+  // after a load gives the same device, and the state need not hold the run.
+  CatchUp();
+
+  const size_t machine_size = psemu_state_size(m_ps);
+  data->resize(STATE_HEADER_SIZE + machine_size);
+  u8* ptr = data->data();
+  std::memcpy(ptr, &STATE_MAGIC, sizeof(STATE_MAGIC));
+  std::memcpy(ptr + sizeof(u32), &m_anchor_ticks, sizeof(m_anchor_ticks));
+  std::memcpy(ptr + sizeof(u32) + sizeof(u64), &m_units_run, sizeof(m_units_run));
+  if (psemu_save_state(m_ps, ptr + STATE_HEADER_SIZE, machine_size) != PSEMU_OK)
+  {
+    ERROR_LOG("Failed to save the PocketStation state.");
+    data->clear();
+    return false;
+  }
+
+  return true;
+}
+
+bool PocketStation::LoadState(std::span<const u8> data, Error* error)
+{
+  u32 magic;
+  if (data.size() < STATE_HEADER_SIZE || (std::memcpy(&magic, data.data(), sizeof(magic)), magic != STATE_MAGIC))
+  {
+    Error::SetStringView(error, "The PocketStation state is damaged.");
+    return false;
+  }
+
+  const std::span<const u8> machine = data.subspan(STATE_HEADER_SIZE);
+  const psemu_status status = psemu_load_state(m_ps, machine.data(), machine.size());
+  if (status != PSEMU_OK)
+  {
+    // The library refuses states of other versions of its format, and leaves the device unchanged.
+    Error::SetStringFmt(error, "The PocketStation library refused the state ({}).", static_cast<int>(status));
+    return false;
+  }
+
+  std::memcpy(&m_anchor_ticks, data.data() + sizeof(u32), sizeof(m_anchor_ticks));
+  std::memcpy(&m_units_run, data.data() + sizeof(u32) + sizeof(u64), sizeof(m_units_run));
+  m_saved_valid = false;
+  m_ahead_until = 0;
+
+  // The loaded flash is not a write by the device.
+  if (const u8* const fl = psemu_flash_data(m_ps))
+    m_flash_snapshot.assign(fl, fl + PSEMU_FLASH_SIZE);
+
+  // A device that finished at shutdown carries on.
+  if (m_finished)
+  {
+    m_finished = false;
+    m_final_state.clear();
+    m_event.Activate();
+  }
+
+  return true;
 }
 
 void PocketStation::EventCallback(void* param, TickCount ticks, TickCount ticks_late)

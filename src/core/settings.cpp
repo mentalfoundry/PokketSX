@@ -847,24 +847,6 @@ void Settings::FixIncompatibleSettings(bool display_osd_messages)
     g_settings.memory_card_pocketstation[i] = false;
   }
 
-  // A PocketStation is not part of memory states, so it cannot go back in time with the console.
-  if ((g_settings.IsRunaheadEnabled() || g_settings.rewind_enable) &&
-      std::any_of(g_settings.memory_card_pocketstation.begin(), g_settings.memory_card_pocketstation.end(),
-                  [](bool enabled) { return enabled; }))
-  {
-    if (show_pocketstation_warnings)
-    {
-      Host::AddKeyedOSDMessage(
-        "pocketstation_rewind_disabled",
-        TRANSLATE_STR("OSDMessage",
-                      "Rewind and runahead have been disabled, because they cannot be used with a PocketStation."),
-        Host::OSD_WARNING_DURATION);
-    }
-
-    g_settings.runahead_frames = 0;
-    g_settings.rewind_enable = false;
-  }
-
   if (g_settings.IsRunaheadEnabled() && g_settings.rewind_enable)
   {
     Host::AddKeyedOSDMessage("rewind_disabled",

@@ -19,7 +19,7 @@ struct psemu;
 // PocketStation in a memory card slot. The device's BIOS implements the memory card protocol, so this only passes
 // bytes to the emulated device, and keeps it in step with console time.
 //
-// The device is not part of save states, only its flash is, as the card data. Loading a state does not rewind it.
+// The device is part of save states, with its place in console time, so loading a state rewinds it with the console.
 class PocketStation
 {
 public:
@@ -50,6 +50,14 @@ public:
   /// Called before the final save of the card. If an app is running, has it save its progress to flash.
   /// The device does not run afterwards.
   void PrepareForSave();
+
+  /// Saves the device and its place in console time, for a save state. After PrepareForSave(), this is the device as
+  /// it was before that, so that loading the state carries on with the device docked and its app running.
+  bool SaveState(std::vector<u8>* data);
+
+  /// Loads a state from SaveState(). This must not run the device: while a state loads, console time is not restored
+  /// yet. On failure, the device is unchanged.
+  bool LoadState(std::span<const u8> data, Error* error);
 
 private:
   explicit PocketStation(u32 slot);
@@ -83,6 +91,9 @@ private:
   bool m_saved_valid = false;
 
   bool m_finished = false;
+
+  // From SaveState(), taken by PrepareForSave() before it undocks the device.
+  std::vector<u8> m_final_state;
 
   TickCount m_ack_ticks = 0;
 

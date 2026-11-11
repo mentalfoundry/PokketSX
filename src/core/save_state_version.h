@@ -1,12 +1,14 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
 #include "common/types.h"
 
 static constexpr u32 SAVE_STATE_MAGIC = 0x43435544;
-static constexpr u32 SAVE_STATE_VERSION = 71;
+// 72: PocketStation devices are part of the state.
+static constexpr u32 SAVE_STATE_VERSION = 72;
 static constexpr u32 SAVE_STATE_MINIMUM_VERSION = 42;
 
 static_assert(SAVE_STATE_VERSION >= SAVE_STATE_MINIMUM_VERSION);
