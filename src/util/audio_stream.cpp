@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #include "audio_stream.h"
 #include "host.h"
@@ -643,6 +644,16 @@ void AudioStream::ExpandAllocate()
 #else
   Panic("Attempting to use expansion on Android.");
 #endif
+}
+
+void AudioStream::FlushPartialChunk()
+{
+  DebugAssert(!IsExpansionEnabled() && !IsStretchEnabled());
+  if (m_staging_buffer_pos == 0)
+    return;
+
+  InternalWriteFrames(m_staging_buffer.get(), m_staging_buffer_pos / NUM_INPUT_CHANNELS);
+  m_staging_buffer_pos = 0;
 }
 
 void AudioStream::EndWrite(u32 num_frames)

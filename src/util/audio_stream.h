@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2019-2024 Connor McLaughlin <stenzek@gmail.com>
-// SPDX-License-Identifier: (GPL-3.0 OR CC-BY-NC-ND-4.0)
+// SPDX-FileCopyrightText: 2026 mentalfoundry
+// SPDX-License-Identifier: GPL-3.0
 
 #pragma once
 
@@ -178,6 +179,10 @@ public:
 
   void BeginWrite(SampleType** buffer_ptr, u32* num_frames);
   void EndWrite(u32 num_frames);
+
+  /// Writes out a partly filled chunk, so that no samples stay behind until the next call. Only for streams without
+  /// expansion or stretching, such as one that hands each frame's samples to a libretro frontend.
+  void FlushPartialChunk();
 
   void EmptyBuffer();
 
