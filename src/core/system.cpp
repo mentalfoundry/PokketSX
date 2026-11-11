@@ -207,6 +207,8 @@ static bool LoadRewindState(u32 skip_saves = 0, bool consume_state = true);
 static bool SaveMemoryState(MemorySaveState* mss);
 static bool LoadMemoryState(const MemorySaveState& mss);
 static bool LoadStateFromBuffer(const SaveStateBuffer& buffer, Error* error, bool update_display);
+static bool LoadStateData(const std::string& state_media_path, u32 state_media_subimage_index, u32 version,
+                          std::span<const u8> state_data, Error* error, bool update_display);
 static bool LoadStateBufferFromFile(SaveStateBuffer* buffer, std::FILE* fp, Error* error, bool read_title,
                                     bool read_media_path, bool read_screenshot, bool read_data);
 static bool ReadAndDecompressStateData(std::FILE* fp, std::span<u8> dst, u32 file_offset, u32 compressed_size,
@@ -2620,6 +2622,102 @@ bool System::SetBootMode(BootMode new_boot_mode, Error* error)
   return true;
 }
 
+// "PKSX", at the start of serialized states.
+static constexpr u32 SERIALIZED_STATE_MAGIC = 0x58534B50;
+
+// Room for the magic, the version, the disc path and the sub-image index, ahead of the state itself.
+static constexpr size_t SERIALIZED_STATE_HEADER_SIZE = 64 * 1024;
+
+size_t System::GetSerializedStateSize()
+{
+  return GetMaxSaveStateSize() + SERIALIZED_STATE_HEADER_SIZE;
+}
+
+bool System::SerializeState(std::span<u8> buffer, size_t* size, Error* error)
+{
+  if (!IsValid())
+  {
+    Error::SetStringView(error, "System is not running.");
+    return false;
+  }
+
+  std::string media_path;
+  u32 media_subimage_index = 0;
+  if (CDROM::HasMedia())
+  {
+    media_path = CDROM::GetMediaFileName();
+    media_subimage_index = CDROM::GetMedia()->HasSubImages() ? CDROM::GetMedia()->GetCurrentSubImage() : 0;
+  }
+
+  // Keep the header within its share of GetSerializedStateSize().
+  if (media_path.size() > SERIALIZED_STATE_HEADER_SIZE / 2)
+  {
+    Error::SetStringView(error, "The disc path is too long.");
+    return false;
+  }
+
+  g_gpu->RestoreDeviceContext();
+  StateWrapper sw(buffer, StateWrapper::Mode::Write, SAVE_STATE_VERSION);
+  u32 magic = SERIALIZED_STATE_MAGIC;
+  u32 version = SAVE_STATE_VERSION;
+  sw.Do(&magic);
+  sw.Do(&version);
+  sw.Do(&media_path);
+  sw.Do(&media_subimage_index);
+  if (sw.HasError() || !DoState(sw, nullptr, false, false))
+  {
+    Error::SetStringFmt(error, "Failed to save the state to a buffer of {} bytes.", buffer.size());
+    return false;
+  }
+
+  *size = sw.GetPosition();
+  return true;
+}
+
+bool System::UnserializeState(std::span<const u8> buffer, Error* error)
+{
+  if (!IsValid())
+  {
+    Error::SetStringView(error, "System is not running.");
+    return false;
+  }
+
+  u32 magic, version;
+  if (buffer.size() < sizeof(magic) + sizeof(version))
+  {
+    Error::SetStringView(error, "The state is too small.");
+    return false;
+  }
+
+  std::memcpy(&magic, buffer.data(), sizeof(magic));
+  std::memcpy(&version, buffer.data() + sizeof(magic), sizeof(version));
+  if (magic != SERIALIZED_STATE_MAGIC)
+  {
+    Error::SetStringView(error, "The state is not a PokketSX state.");
+    return false;
+  }
+  if (version < SAVE_STATE_MINIMUM_VERSION || version > SAVE_STATE_VERSION)
+  {
+    Error::SetStringFmt(error, "The state has version {}, but this version of PokketSX can only load {} to {}.",
+                        version, SAVE_STATE_MINIMUM_VERSION, SAVE_STATE_VERSION);
+    return false;
+  }
+
+  const std::span<const u8> body = buffer.subspan(sizeof(magic) + sizeof(version));
+  StateWrapper sw(body, StateWrapper::Mode::Read, version);
+  std::string media_path;
+  u32 media_subimage_index = 0;
+  sw.Do(&media_path);
+  sw.Do(&media_subimage_index);
+  if (sw.HasError())
+  {
+    Error::SetStringView(error, "The state header is damaged.");
+    return false;
+  }
+
+  return LoadStateData(media_path, media_subimage_index, version, body.subspan(sw.GetPosition()), error, true);
+}
+
 size_t System::GetMaxSaveStateSize()
 {
   // 5 megabytes is sufficient for now, at the moment they're around 4.3MB, or 10.3MB with 8MB RAM enabled.
@@ -2698,21 +2796,30 @@ bool System::LoadState(const char* path, Error* error, bool save_undo_state)
 
 bool System::LoadStateFromBuffer(const SaveStateBuffer& buffer, Error* error, bool update_display)
 {
+  return LoadStateData(buffer.media_path, buffer.media_subimage_index, buffer.version,
+                       buffer.state_data.cspan(0, buffer.state_size), error, update_display);
+}
+
+bool System::LoadStateData(const std::string& state_media_path, u32 state_media_subimage_index, u32 version,
+                           std::span<const u8> state_data, Error* error, bool update_display)
+{
   Assert(IsValid());
+
+  const std::string previous_game_path = s_running_game_path;
 
   std::unique_ptr<CDImage> media;
   std::unique_ptr<CDImage> old_media = CDROM::RemoveMedia(false);
-  std::string_view media_path = buffer.media_path;
-  u32 media_subimage_index = buffer.media_subimage_index;
-  if (old_media && old_media->GetFileName() == buffer.media_path)
+  std::string_view media_path = state_media_path;
+  u32 media_subimage_index = state_media_subimage_index;
+  if (old_media && old_media->GetFileName() == state_media_path)
   {
-    INFO_LOG("Re-using same media '{}'", buffer.media_path);
+    INFO_LOG("Re-using same media '{}'", state_media_path);
     media = std::move(old_media);
   }
-  else if (!buffer.media_path.empty())
+  else if (!state_media_path.empty())
   {
     Error local_error;
-    media = CDImage::Open(buffer.media_path.c_str(), g_settings.cdrom_load_image_patches, error ? error : &local_error);
+    media = CDImage::Open(state_media_path.c_str(), g_settings.cdrom_load_image_patches, error ? error : &local_error);
     if (!media)
     {
       if (old_media)
@@ -2720,7 +2827,7 @@ bool System::LoadStateFromBuffer(const SaveStateBuffer& buffer, Error* error, bo
         Host::AddOSDMessage(
           fmt::format(TRANSLATE_FS("OSDMessage", "Failed to open CD image from save state '{}': {}.\nUsing "
                                                  "existing image '{}', this may result in instability."),
-                      buffer.media_path, error ? error->GetDescription() : local_error.GetDescription(),
+                      state_media_path, error ? error->GetDescription() : local_error.GetDescription(),
                       old_media->GetFileName()),
           Host::OSD_CRITICAL_ERROR_DURATION);
         media = std::move(old_media);
@@ -2730,13 +2837,13 @@ bool System::LoadStateFromBuffer(const SaveStateBuffer& buffer, Error* error, bo
       else
       {
         Error::AddPrefixFmt(error, TRANSLATE_FS("System", "Failed to open CD image '{}' used by save state:\n"),
-                            Path::GetFileName(buffer.media_path));
+                            Path::GetFileName(state_media_path));
         return false;
       }
     }
   }
 
-  if (media && buffer.version >= 51)
+  if (media && version >= 51)
   {
     const u32 num_subimages = media->HasSubImages() ? media->GetSubImageCount() : 1;
     if (media_subimage_index >= num_subimages ||
@@ -2750,7 +2857,7 @@ bool System::LoadStateFromBuffer(const SaveStateBuffer& buffer, Error* error, bo
     }
     else
     {
-      INFO_LOG("Switched to subimage {} in '{}'", media_subimage_index, buffer.media_path.c_str());
+      INFO_LOG("Switched to subimage {} in '{}'", media_subimage_index, state_media_path.c_str());
     }
   }
 
@@ -2767,8 +2874,9 @@ bool System::LoadStateFromBuffer(const SaveStateBuffer& buffer, Error* error, bo
       CDROM::PrecacheMedia();
   }
 
-  // ensure the correct card is loaded
-  if (g_settings.HasAnyPerGameMemoryCards())
+  // Ensure the correct card is loaded, if the state is of a different game. For the same game, keep the cards, which
+  // the state then loads into. Creating them again would also boot any PocketStation again for nothing.
+  if (g_settings.HasAnyPerGameMemoryCards() && s_running_game_path != previous_game_path)
     UpdatePerGameMemoryCards();
 
   ClearMemorySaveStates();
@@ -2776,7 +2884,7 @@ bool System::LoadStateFromBuffer(const SaveStateBuffer& buffer, Error* error, bo
   // Updating game/loading settings can turn on hardcore mode. Catch this.
   Achievements::DisableHardcoreMode();
 
-  StateWrapper sw(buffer.state_data.cspan(0, buffer.state_size), StateWrapper::Mode::Read, buffer.version);
+  StateWrapper sw(state_data, StateWrapper::Mode::Read, version);
   if (!DoState(sw, nullptr, update_display, false))
   {
     Error::SetStringView(error, "Save state stream is corrupted.");

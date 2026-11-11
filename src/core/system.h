@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 
 class ByteStream;
@@ -259,6 +260,13 @@ void ResetSystem();
 bool LoadState(const char* path, Error* error, bool save_undo_state);
 bool SaveState(const char* path, Error* error, bool backup_existing_save);
 bool SaveResumeState(Error* error);
+
+/// Save states for frontends that keep them in memory themselves, such as libretro. The data is a full save state,
+/// without a screenshot or compression, and with the disc path. Every state fits in GetSerializedStateSize() bytes,
+/// which does not change while the system runs.
+size_t GetSerializedStateSize();
+bool SerializeState(std::span<u8> buffer, size_t* size, Error* error);
+bool UnserializeState(std::span<const u8> buffer, Error* error);
 
 /// Runs the VM until the CPU execution is canceled.
 void Execute();
