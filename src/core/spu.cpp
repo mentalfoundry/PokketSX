@@ -348,7 +348,7 @@ static void ProcessReverb(s32 left_in, s32 right_in, s32* left_out, s32* right_o
 
 static void InternalGeneratePendingSamples();
 static void Execute(void* param, TickCount ticks, TickCount ticks_late);
-static void UpdateEventInterval();
+static void UpdateEventInterval(bool loading_state = false);
 
 static void ExecuteFIFOWriteToRAM(TickCount& ticks);
 static void ExecuteFIFOReadFromRAM(TickCount& ticks);
@@ -714,7 +714,7 @@ bool SPU::DoCompatibleState(StateWrapper& sw)
 
   if (sw.IsReading())
   {
-    UpdateEventInterval();
+    UpdateEventInterval(true);
     UpdateTransferEvent();
   }
 
@@ -2480,7 +2480,7 @@ void SPU::Execute(void* param, TickCount ticks, TickCount ticks_late)
   }
 }
 
-void SPU::UpdateEventInterval()
+void SPU::UpdateEventInterval(bool loading_state)
 {
   // Don't generate more than the audio buffer since in a single slice, otherwise we'll both overflow the buffers when
   // we do write it, and the audio thread will underflow since it won't have enough data it the game isn't messing with
@@ -2493,8 +2493,11 @@ void SPU::UpdateEventInterval()
   if (s_state.tick_event.IsActive() && s_state.tick_event.GetInterval() == interval_ticks)
     return;
 
-  // Ensure all pending ticks have been executed, since we won't get them back after rescheduling.
-  s_state.tick_event.InvokeEarly(true);
+  // Ensure all pending ticks have been executed, since we won't get them back after rescheduling. Not while a state
+  // loads: console time is not restored yet, so running the event would change the loaded ticks_carry, and output
+  // samples that are not in the state. The timing events load after this and restore the event's times.
+  if (!loading_state)
+    s_state.tick_event.InvokeEarly(true);
   s_state.tick_event.SetInterval(interval_ticks);
 
   TickCount downcount = interval_ticks;
