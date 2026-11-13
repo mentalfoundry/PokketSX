@@ -59,9 +59,39 @@ static constexpr u32 HTTP_POLL_INTERVAL = 10;
 static const char* LATEST_TAG_URL = "https://api.github.com/repos/mentalfoundry/PokketSX/tags";
 static const char* LATEST_RELEASE_URL = "https://api.github.com/repos/mentalfoundry/PokketSX/releases/tags/{}";
 static const char* CHANGES_URL = "https://api.github.com/repos/mentalfoundry/PokketSX/compare/{}...{}";
+static const char* CHANGES_PAGE_URL = "https://github.com/mentalfoundry/PokketSX/compare/{}...{}";
 static const char* UPDATE_ASSET_FILENAME = SCM_RELEASE_ASSET;
 static const char* UPDATE_TAGS[] = SCM_RELEASE_TAGS;
 static const char* THIS_RELEASE_TAG = SCM_RELEASE_TAG;
+
+// The "Changelog:" trailers of a commit message, which say what changed for users. An indented line continues the
+// one before it, as git unfolds trailers. See CONTRIBUTING.md.
+static QStringList GetChangelogEntries(const QString& message)
+{
+  static constexpr QLatin1StringView KEY("Changelog:");
+
+  QStringList entries;
+  bool in_entry = false;
+  for (const QString& line : message.split(QLatin1Char('\n')))
+  {
+    if (line.startsWith(KEY))
+    {
+      entries.append(line.mid(KEY.size()).trimmed());
+      in_entry = true;
+    }
+    else if (in_entry && (line.startsWith(QLatin1Char(' ')) || line.startsWith(QLatin1Char('\t'))) &&
+             !line.trimmed().isEmpty())
+    {
+      entries.last() += QLatin1Char(' ') + line.trimmed();
+    }
+    else
+    {
+      in_entry = false;
+    }
+  }
+
+  return entries;
+}
 
 #endif
 
@@ -70,6 +100,7 @@ Log_SetChannel(AutoUpdaterDialog);
 AutoUpdaterDialog::AutoUpdaterDialog(QWidget* parent /* = nullptr */) : QDialog(parent)
 {
   m_ui.setupUi(this);
+  m_ui.updateNotes->setOpenExternalLinks(true);
 
   setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -431,35 +462,53 @@ void AutoUpdaterDialog::getChangesComplete(s32 status_code, std::vector<u8> resp
       const QJsonObject doc_object(doc.object());
 
       QString changes_html = tr("<h2>Changes:</h2>");
-      changes_html += QStringLiteral("<ul>");
 
       const QJsonArray commits(doc_object["commits"].toArray());
       bool update_will_break_save_states = false;
       bool update_increases_settings_version = false;
 
+      // Only the changes for users. Commits without a "Changelog:" trailer are counted, and linked to.
+      QStringList entries;
+      int developer_changes = 0;
       for (const QJsonValue& commit : commits)
       {
         const QJsonObject commit_obj(commit["commit"].toObject());
+        const QString message = commit_obj["message"].toString();
 
-        QString message = commit_obj["message"].toString();
-        QString author = commit_obj["author"].toObject()["name"].toString();
-        const int first_line_terminator = message.indexOf('\n');
-        if (first_line_terminator >= 0)
-          message.remove(first_line_terminator, message.size() - first_line_terminator);
-        if (!message.isEmpty())
-        {
-          changes_html +=
-            QStringLiteral("<li>%1 <i>(%2)</i></li>").arg(message.toHtmlEscaped()).arg(author.toHtmlEscaped());
-        }
+        const QStringList commit_entries = GetChangelogEntries(message);
+        if (commit_entries.isEmpty())
+          developer_changes++;
+        else
+          entries += commit_entries;
 
-        if (message.contains(QStringLiteral("[SAVEVERSION+]")))
+        const QString title = message.left(message.indexOf(QLatin1Char('\n')));
+        if (title.contains(QStringLiteral("[SAVEVERSION+]")))
           update_will_break_save_states = true;
 
-        if (message.contains(QStringLiteral("[SETTINGSVERSION+]")))
+        if (title.contains(QStringLiteral("[SETTINGSVERSION+]")))
           update_increases_settings_version = true;
       }
 
-      changes_html += "</ul>";
+      if (!entries.isEmpty())
+      {
+        changes_html += QStringLiteral("<ul>");
+        for (const QString& entry : entries)
+          changes_html += QStringLiteral("<li>%1</li>").arg(entry.toHtmlEscaped());
+        changes_html += QStringLiteral("</ul>");
+      }
+      else
+      {
+        changes_html += tr("<p>This update has only changes for developers.</p>");
+      }
+
+      if (developer_changes > 0)
+      {
+        const QString url = QString::fromStdString(
+          fmt::format(fmt::runtime(CHANGES_PAGE_URL), g_scm_hash_str, getCurrentUpdateTag()));
+        changes_html += tr("<p>Changes for developers: %1. <a href=\"%2\">Show all changes</a></p>")
+                          .arg(developer_changes)
+                          .arg(url.toHtmlEscaped());
+      }
 
       if (update_will_break_save_states)
       {
