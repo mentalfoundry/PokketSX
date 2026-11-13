@@ -395,6 +395,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      # The full history and the tags, to find the commit of the previous release.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -403,6 +408,13 @@ jobs:
       - name: Display Downloaded Artifacts
         run: find ./artifacts/
 
+      # From the "Changelog:" trailers since the previous release, which the latest tag still marks. See CONTRIBUTING.md.
+      - name: Write release notes
+        run: |
+          prev=$(git rev-parse -q --verify "refs/tags/latest^{commit}" || true)
+          scripts/release-notes.sh "$prev" "$GITHUB_SHA" "$GITHUB_REPOSITORY" > release-notes.md
+          cat release-notes.md
+
       - name: Create rolling release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -410,7 +422,7 @@ jobs:
           gh release delete latest --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
           gh release create latest --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Latest Rolling Release" \
-            --notes "Windows x64 builds of ${GITHUB_SHA}. The release has the PokketSX application and the PokketSX libretro core. The libretro core is experimental." \
+            --notes-file release-notes.md \
             ./artifacts/windows/pokketsx-windows-x64-release.zip \
             ./artifacts/windows/pokketsx-windows-x64-release-symbols.zip \
             ./artifacts/windows-libretro/pokketsx-libretro-windows-x64.zip

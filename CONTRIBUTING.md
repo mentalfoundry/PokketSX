@@ -63,3 +63,36 @@ locally:
 ```
 git config core.hooksPath scripts/hooks
 ```
+## Changelog
+
+The rolling release and the update dialog of the application show a list of
+changes. The list comes from the `Changelog:` trailers in the commit messages.
+`scripts/release-notes.sh` writes the release notes from these trailers.
+
+If users can see the effect of a commit, add a `Changelog:` trailer to the
+commit message:
+
+- Put the trailer in the last paragraph of the message. Do not put other text
+  in that paragraph.
+- Write one change in each trailer. A commit can have more than one trailer.
+- Write the change for users, in ASD-STE100 Simplified Technical English.
+- To continue a long change on the next line, start that line with a space.
+
+Example:
+
+```
+PocketStation: Make the device part of save states
+
+Loading a state left the device as it was, so a game that was talking to it
+carried on with a device from a different point in time.
+
+Changelog: Save states now include the PocketStation.
+Changelog: Rewind and runahead now operate when a PocketStation is in use.
+```
+
+Do not add a trailer to a commit if users cannot see its effect, for example a
+change to CI or to the regression tests.
+
+If a commit makes older save states incompatible, put `[SAVEVERSION+]` in its
+title. If a commit resets the settings, put `[SETTINGSVERSION+]` in its title.
+The update dialog then shows a warning.
